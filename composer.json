@@ -1,0 +1,20 @@
+{
+    "name": "maciej-sz/pj-freeze",
+    "description": "PHP to JSON Serializer/Deserializer",
+    "keywords": ["json", "serialize", "deserialize"],
+    "type": "library",
+    "autoload": {
+        "psr-0": {
+            "MaciejSz\\PjFreeze\\": "src/",
+            "MaciejSzUt\\PjFreeze\\": "tests/php-unit/"
+        }
+    },
+    "minimum-stability": "alpha",
+    "require-dev": {
+        "phpunit/phpunit": "^5.4"
+    },
+    "require": {
+        "php": ">=5.5.3"
+    },
+    "suggest": {}
+}
