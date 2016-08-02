@@ -17,7 +17,7 @@
 
     <testsuites>
         <testsuite name="maciej-sz/pj-freeze">
-            <directory suffix="Test.php">tests/php-unit</directory>
+            <directory suffix="Test.php">tests/php-unit/src</directory>
         </testsuite>
     </testsuites>
 

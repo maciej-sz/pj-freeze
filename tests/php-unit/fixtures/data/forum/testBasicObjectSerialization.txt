@@ -1,0 +1,19 @@
+{
+    "root": "##ref##0x0",
+    "objects": {
+        "0x0": {
+            "name": "John",
+            "email": "john@example.com",
+            "joined": "2016-01-01 11:12:32",
+            "entries": []
+        }
+    },
+    "meta": {
+        "classes": {
+            "0x0": "MaciejSzUtFix\\PjFreeze\\Forum\\User"
+        },
+        "versions": {
+            "MaciejSzUtFix\\PjFreeze\\Forum\\User": 123
+        }
+    }
+}

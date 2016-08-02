@@ -1,33 +1,46 @@
 <?php
 namespace MaciejSz\PjFreeze\Process;
 
+use MaciejSz\PjFreeze\PjFreeze;
+
 class SerializationResult implements \JsonSerializable
 {
-    /**
-     * @var array
-     */
-    private $_objects = [];
-
     /**
      * @var mixed
      */
     private $_root = null;
 
     /**
+     * @var array
+     */
+    private $_objects = [];
+
+    /**
+     * @var \stdClass
+     */
+    private $_meta;
+
+    /**
      * @param mixed $root
      * @param array $objects
+     * @param \stdClass $meta
      */
-    public function __construct($root, array $objects)
+    public function __construct($root, array $objects, \stdClass $meta)
     {
         $this->_root = $root;
         $this->_objects = $objects;
+        $this->_meta = $meta;
     }
 
+    /**
+     * @return object
+     */
     public function jsonSerialize()
     {
         return (object)[
-            "__pj_freeze_objects" => $this->_objects,
-            "__pj_freeze_root" => $this->_root,
+            "root" => $this->_root,
+            "objects" => $this->_objects,
+            "meta" => $this->_meta,
         ];
     }
 
@@ -42,8 +55,20 @@ class SerializationResult implements \JsonSerializable
     /**
      * @return mixed
      */
+    public function getRawRoot()
+    {
+        return $this->_root;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getRoot()
     {
+        $ref = PjFreeze::tryExtractReference($this->_root);
+        if ($ref) {
+            return $this->_objects[$ref];
+        }
         return $this->_root;
     }
 }

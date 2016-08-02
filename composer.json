@@ -6,7 +6,8 @@
     "autoload": {
         "psr-0": {
             "MaciejSz\\PjFreeze\\": "src/",
-            "MaciejSzUt\\PjFreeze\\": "tests/php-unit/"
+            "MaciejSzUt\\PjFreeze\\": "tests/php-unit/src/",
+            "MaciejSzUtFix\\PjFreeze\\": "tests/php-unit/fixtures/src/"
         }
     },
     "minimum-stability": "alpha",
