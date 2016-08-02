@@ -125,9 +125,40 @@ class PjFreeze
             $key = self::buildKey($idx);
             return $Process->makeResult($key, $key);
         }
-        $item = new \stdClass();
         $idx = $Process->putObject($Object);
-        $Reflection = new \ReflectionObject($Object);
+        $item = (object)$this->_serializeReflectionProperties(
+            new \ReflectionObject($Object),
+            $Object,
+            $Process
+        );
+//        $item = new \stdClass();
+//        $idx = $Process->putObject($Object);
+//        $Reflection = new \ReflectionObject($Object);
+//        $properties = $Reflection->getProperties();
+//        foreach ( $properties as $Property ) {
+//            if ( $Property->isStatic() ) {
+//                continue;
+//            }
+//            $name = $Property->getName();
+//            $Property->setAccessible(true);
+//            $mValue = $Property->getValue($Object);
+//            $Res = $this->_doSerialize($mValue, $Process);
+//            $item->$name = $this->_extractSerialized($Res, $Process);
+//        }
+//        if ( $Reflection->getParentClass() ) {
+//
+//        }
+        $Process->putObjectRepresentation($idx, $item);
+        return $Process->makeResult($Object, $item);
+    }
+
+    protected function _serializeReflectionProperties(
+        \ReflectionClass $Reflection,
+        $Object,
+        PjFreezeProcess $Process
+    )
+    {
+        $items = [];
         $properties = $Reflection->getProperties();
         foreach ( $properties as $Property ) {
             if ( $Property->isStatic() ) {
@@ -137,10 +168,18 @@ class PjFreeze
             $Property->setAccessible(true);
             $mValue = $Property->getValue($Object);
             $Res = $this->_doSerialize($mValue, $Process);
-            $item->$name = $this->_extractSerialized($Res, $Process);
+            $items[$name] = $this->_extractSerialized($Res, $Process);
         }
-        $Process->putObjectRepresentation($idx, $item);
-        return $Process->makeResult($Object, $item);
+        $ParentReflection = $Reflection->getParentClass();
+        if ($ParentReflection) {
+            $parent_items = $this->_serializeReflectionProperties(
+                $ParentReflection,
+                $Object,
+                $Process
+            );
+            $items = array_merge($parent_items, $items);
+        }
+        return $items;
     }
 
     /**

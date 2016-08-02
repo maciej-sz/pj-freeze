@@ -1,7 +1,7 @@
 <?php
 namespace MaciejSzUtFix\PjFreeze\Encapsulation;
 
-class Sub
+class Sub extends Super
 {
     private $_sub_private = "c";
 

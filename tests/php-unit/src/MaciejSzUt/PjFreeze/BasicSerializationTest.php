@@ -199,20 +199,24 @@ class BasicSerializationTest extends TestCase
         );
     }
 
+    public function testDeepCircularRecursionGreedy()
+    {
+
+        $this->markTestIncomplete();
+    }
+
     public function testSerializeEncapsulatedProperties()
     {
         $Sub = new Sub();
 
         $Res = PjFreeze::factory()->serialize($Sub);
-        echo FixtureHelper::encodeJson($Res);
 
-        $this->markTestIncomplete();
-    }
+        $Helper = FixtureHelper::factory("encapsulation");
 
-    public function testDeepCircularRecursionGreedy()
-    {
-
-        $this->markTestIncomplete();
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__),
+            FixtureHelper::encodeJson($Res)
+        );
     }
 
     public function testSerializeTraversableObject()

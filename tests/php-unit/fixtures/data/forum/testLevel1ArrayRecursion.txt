@@ -2,25 +2,25 @@
     "root": "##ref##0x0",
     "objects": {
         "0x1": {
-            "Thread": "##ref##0x0",
             "Author": null,
             "title": "Post #1",
-            "contents": "foo"
+            "contents": "foo",
+            "Thread": "##ref##0x0"
         },
         "0x2": {
-            "Thread": "##ref##0x0",
             "Author": null,
             "title": "Post #2",
-            "contents": "bar"
+            "contents": "bar",
+            "Thread": "##ref##0x0"
         },
         "0x0": {
+            "Author": null,
+            "title": "Thread title",
+            "contents": "Thread contents",
             "posts": [
                 "##ref##0x1",
                 "##ref##0x2"
-            ],
-            "Author": null,
-            "title": "Thread title",
-            "contents": "Thread contents"
+            ]
         }
     },
     "meta": {

@@ -10,25 +10,25 @@
             ]
         },
         "0x2": {
-            "Thread": "##ref##0x1",
             "Author": "##ref##0x3",
             "title": "Post #1",
-            "contents": "foo"
+            "contents": "foo",
+            "Thread": "##ref##0x1"
         },
         "0x4": {
-            "Thread": "##ref##0x1",
             "Author": "##ref##0x0",
             "title": "Post #2",
-            "contents": "bar"
+            "contents": "bar",
+            "Thread": "##ref##0x1"
         },
         "0x1": {
+            "Author": "##ref##0x0",
+            "title": "Thread title",
+            "contents": "Thread contents",
             "posts": [
                 "##ref##0x2",
                 "##ref##0x4"
-            ],
-            "Author": "##ref##0x0",
-            "title": "Thread title",
-            "contents": "Thread contents"
+            ]
         },
         "0x0": {
             "name": "Kelly",

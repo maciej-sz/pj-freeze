@@ -1,0 +1,19 @@
+{
+    "root": "##ref##0x0",
+    "objects": {
+        "0x0": {
+            "_super_private": "a",
+            "_super_protected": "b",
+            "_sub_private": "c",
+            "_sub_protected": "d"
+        }
+    },
+    "meta": {
+        "classes": {
+            "0x0": "MaciejSzUtFix\\PjFreeze\\Encapsulation\\Sub"
+        },
+        "versions": {
+            "MaciejSzUtFix\\PjFreeze\\Encapsulation\\Sub": 1
+        }
+    }
+}
