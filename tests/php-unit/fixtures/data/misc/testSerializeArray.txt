@@ -1,0 +1,18 @@
+{
+    "root": [
+        123,
+        "foo",
+        "##ref##0x0"
+    ],
+    "objects": {
+        "0x0": []
+    },
+    "meta": {
+        "classes": {
+            "0x0": "stdClass"
+        },
+        "versions": {
+            "stdClass": 1
+        }
+    }
+}

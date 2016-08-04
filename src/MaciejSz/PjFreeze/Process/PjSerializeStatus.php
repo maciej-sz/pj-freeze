@@ -1,10 +1,13 @@
 <?php
 namespace MaciejSz\PjFreeze\Process;
 
-class PjFreezeStatus
+/**
+ * @internal
+ */
+class PjSerializeStatus
 {
     /**
-     * @var PjFreezeProcess
+     * @var PjSerializeProcess
      */
     private $_Process;
 
@@ -14,9 +17,9 @@ class PjFreezeStatus
     private $_path = [];
 
     /**
-     * @param PjFreezeProcess $Process
+     * @param PjSerializeProcess $Process
      */
-    public function __construct(PjFreezeProcess $Process)
+    public function __construct(PjSerializeProcess $Process)
     {
         $this->_Process = $Process;
     }
@@ -24,7 +27,7 @@ class PjFreezeStatus
     /**
      * @param string $fragment
      * @param null|string $idx
-     * @return PjFreezeStatus
+     * @return PjSerializeStatus
      */
     public function appendPathProperty($fragment, $idx = null)
     {
@@ -37,7 +40,7 @@ class PjFreezeStatus
     /**
      * @param int|string $fragment
      * @param null|string $idx
-     * @return PjFreezeStatus
+     * @return PjSerializeStatus
      */
     public function appendPathTraversable($fragment, $idx = null)
     {
@@ -54,7 +57,7 @@ class PjFreezeStatus
     }
 
     /**
-     * @return PjFreezeProcess
+     * @return PjSerializeProcess
      */
     public function getProcess()
     {

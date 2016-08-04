@@ -29,10 +29,10 @@ class RootSanitizer
 
     /**
      * @param mixed $mSerializedRoot
-     * @param PjFreezeProcess $Process
+     * @param PjSerializeProcess $Process
      * @return mixed
      */
-    public function sanitize($mSerializedRoot, PjFreezeProcess $Process)
+    public function sanitize($mSerializedRoot, PjSerializeProcess $Process)
     {
         if ( !is_object($this->_mOriginalRoot) ) {
             return $mSerializedRoot;

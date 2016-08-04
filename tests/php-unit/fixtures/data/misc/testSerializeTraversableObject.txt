@@ -1,0 +1,17 @@
+{
+    "root": "##ref##0x0",
+    "objects": {
+        "0x0": [
+            "foo",
+            "bar"
+        ]
+    },
+    "meta": {
+        "classes": {
+            "0x0": "ArrayObject"
+        },
+        "versions": {
+            "ArrayObject": 1
+        }
+    }
+}

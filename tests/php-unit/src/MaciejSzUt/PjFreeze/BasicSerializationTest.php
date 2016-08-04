@@ -279,19 +279,30 @@ class BasicSerializationTest extends TestCase
         );
     }
 
+    public function testSerializeArray()
+    {
+        $arr = [123, "foo", new \stdClass()];
+        $Freeze = PjFreeze::factory();
+        $Res = $Freeze->serialize($arr);
+        $Helper = FixtureHelper::factory("misc");
+
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__),
+            FixtureHelper::encodeJson($Res)
+        );
+    }
+
     public function testSerializeTraversableObject()
     {
         $Object = new \ArrayObject(["foo", "bar"]);
 
-        
+        $Freeze = PjFreeze::factory();
+        $Res = $Freeze->serializeTraversable($Object);
+        $Helper = FixtureHelper::factory("misc");
 
-        $this->markTestIncomplete();
-    }
-
-    public function testSerializeTraversableObjectGreedy()
-    {
-        $Object = new \ArrayObject(["foo", "bar"]);
-
-        $this->markTestIncomplete();
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__),
+            FixtureHelper::encodeJson($Res)
+        );
     }
 }

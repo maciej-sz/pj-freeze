@@ -5,7 +5,10 @@ use MaciejSz\PjFreeze\Exc\EInvalidVersion;
 use MaciejSz\PjFreeze\Exc\EVersionMismatch;
 use MaciejSz\PjFreeze\PjFreeze;
 
-class PjFreezeProcess
+/**
+ * @internal
+ */
+class PjSerializeProcess
 {
     /**
      * @var bool
@@ -90,11 +93,11 @@ class PjFreezeProcess
 
     /**
      * @param int $idx
-     * @param \stdClass $serializedItem
+     * @param $serialized
      */
-    public function putObjectRepresentation($idx, \stdClass $serializedItem)
+    public function putObjectRepresentation($idx, $serialized)
     {
-        $this->_serialized_objects_dict[$idx] = $serializedItem;
+        $this->_serialized_objects_dict[$idx] = $serialized;
     }
 
     /**
@@ -161,6 +164,27 @@ class PjFreezeProcess
             return null;
         }
         return $this->_Instances->offsetGet($Object);
+    }
+
+    /**
+     * @param SerializationResult $Res
+     * @return mixed
+     */
+    public function extractSerialized(SerializationResult $Res)
+    {
+        $mRawRoot = $Res->getRawRoot();
+        if ( !$this->_is_greedy ) {
+            return $mRawRoot;
+        }
+        $ref = PjFreeze::tryExtractReference($mRawRoot);
+        if ( !$ref ) {
+            return $mRawRoot;
+        }
+        $mSerialized = $this->tryGetObjectRepresentation($ref);
+        if ( null === $mSerialized ) {
+            return $mRawRoot;
+        }
+        return $mSerialized;
     }
 
     /**
