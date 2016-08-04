@@ -71,4 +71,20 @@ class SerializationResult implements \JsonSerializable
         }
         return $this->_root;
     }
+
+    /**
+     * @param array $path_references
+     * @return $this New instance.
+     */
+    public function withPathReferences(array $path_references)
+    {
+        $Instance = clone $this;
+        $Instance->_meta->path_references = $path_references;
+        return $Instance;
+    }
+
+    public function __clone()
+    {
+        $this->_meta = clone $this->_meta;
+    }
 }

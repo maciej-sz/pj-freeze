@@ -8,6 +8,11 @@ use MaciejSz\PjFreeze\PjFreeze;
 class PjFreezeProcess
 {
     /**
+     * @var bool
+     */
+    private $_is_greedy = false;
+
+    /**
      * @var \SplObjectStorage
      */
     private $_Instances;
@@ -23,12 +28,24 @@ class PjFreezeProcess
     private $_serialized_objects_dict = [];
 
     /**
+     * @var array
+     */
+    private $_path_references = [];
+
+    /**
      * @var null|\stdClass
      */
     private $_meta = null;
 
-    public function __construct()
+    /**
+     * @param null|bool $is_greedy
+     */
+    public function __construct($is_greedy = null)
     {
+        if ( null === $is_greedy ) {
+            $is_greedy = false;
+        }
+        $this->_is_greedy = $is_greedy;
         $this->_Instances = new \SplObjectStorage();
     }
 
@@ -93,6 +110,24 @@ class PjFreezeProcess
     }
 
     /**
+     * @param array $path
+     * @param null|string $idx
+     * @return $this
+     */
+    public function addPathReference(array $path, $idx = null)
+    {
+        if ( null === $idx ) {
+            return $this;
+        }
+        if ( empty($path) ) {
+            return $this;
+        }
+        $key = implode(".", $path);
+        $this->_path_references[$key] = $idx;
+        return $this;
+    }
+
+    /**
      * @param mixed $mOriginalRoot
      * @param mixed $mSerializedRoot
      * @return SerializationResult
@@ -102,11 +137,15 @@ class PjFreezeProcess
         $this->_ensureMeta();
         $Sanitizer = RootSanitizer::makeFor($mOriginalRoot);
         $mSerializedRoot = $Sanitizer->sanitize($mSerializedRoot, $this);
-        return new SerializationResult(
+        $Result = new SerializationResult(
             $mSerializedRoot,
             $this->_serialized_objects_dict,
             $this->_meta
         );
+        if ( $this->_is_greedy ) {
+            $Result = $Result->withPathReferences($this->_path_references);
+        }
+        return $Result;
     }
 
     /**

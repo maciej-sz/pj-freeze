@@ -42,6 +42,10 @@
         "versions": {
             "MaciejSzUtFix\\PjFreeze\\Forum\\Thread": 1,
             "MaciejSzUtFix\\PjFreeze\\Forum\\Post": 1
+        },
+        "path_references": {
+            "posts.[0]": "0x1",
+            "posts.[1]": "0x2"
         }
     }
 }

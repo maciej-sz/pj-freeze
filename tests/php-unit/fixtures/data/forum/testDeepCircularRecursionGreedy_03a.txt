@@ -1,0 +1,112 @@
+{
+    "root": "##ref##0x0",
+    "objects": {
+        "0x3": {
+            "name": "John",
+            "email": null,
+            "joined": null,
+            "entries": [
+                "##ref##0x2"
+            ]
+        },
+        "0x2": {
+            "Author": {
+                "name": "John",
+                "email": null,
+                "joined": null,
+                "entries": [
+                    "##ref##0x2"
+                ]
+            },
+            "title": "Post #1",
+            "contents": "foo",
+            "Thread": "##ref##0x1"
+        },
+        "0x4": {
+            "Author": "##ref##0x0",
+            "title": "Post #2",
+            "contents": "bar",
+            "Thread": "##ref##0x1"
+        },
+        "0x1": {
+            "Author": "##ref##0x0",
+            "title": "Thread title",
+            "contents": "Thread contents",
+            "posts": [
+                {
+                    "Author": {
+                        "name": "John",
+                        "email": null,
+                        "joined": null,
+                        "entries": [
+                            "##ref##0x2"
+                        ]
+                    },
+                    "title": "Post #1",
+                    "contents": "foo",
+                    "Thread": "##ref##0x1"
+                },
+                {
+                    "Author": "##ref##0x0",
+                    "title": "Post #2",
+                    "contents": "bar",
+                    "Thread": "##ref##0x1"
+                }
+            ]
+        },
+        "0x0": {
+            "name": "Kelly",
+            "email": null,
+            "joined": null,
+            "entries": [
+                {
+                    "Author": "##ref##0x0",
+                    "title": "Thread title",
+                    "contents": "Thread contents",
+                    "posts": [
+                        {
+                            "Author": {
+                                "name": "John",
+                                "email": null,
+                                "joined": null,
+                                "entries": [
+                                    "##ref##0x2"
+                                ]
+                            },
+                            "title": "Post #1",
+                            "contents": "foo",
+                            "Thread": "##ref##0x1"
+                        },
+                        {
+                            "Author": "##ref##0x0",
+                            "title": "Post #2",
+                            "contents": "bar",
+                            "Thread": "##ref##0x1"
+                        }
+                    ]
+                },
+                "##ref##0x4"
+            ]
+        }
+    },
+    "meta": {
+        "classes": {
+            "0x0": "MaciejSzUtFix\\PjFreeze\\Forum\\User",
+            "0x1": "MaciejSzUtFix\\PjFreeze\\Forum\\Thread",
+            "0x2": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
+            "0x3": "MaciejSzUtFix\\PjFreeze\\Forum\\User",
+            "0x4": "MaciejSzUtFix\\PjFreeze\\Forum\\Post"
+        },
+        "versions": {
+            "MaciejSzUtFix\\PjFreeze\\Forum\\User": 123,
+            "MaciejSzUtFix\\PjFreeze\\Forum\\Thread": 1,
+            "MaciejSzUtFix\\PjFreeze\\Forum\\Post": 1
+        },
+        "path_references": {
+            "entries.[0]": "0x1",
+            "entries.[0].posts.[0]": "0x2",
+            "entries.[0].posts.[0].Author": "0x3",
+            "entries.[0].posts.[1]": "0x4"
+        }
+    }
+}

@@ -2,6 +2,7 @@
 namespace MaciejSz\PjFreeze;
 
 use MaciejSz\PjFreeze\Process\PjFreezeProcess;
+use MaciejSz\PjFreeze\Process\PjFreezeStatus;
 use MaciejSz\PjFreeze\Process\SerializationResult;
 
 class PjFreeze
@@ -11,7 +12,7 @@ class PjFreeze
     /**
      * @var bool
      */
-    private $_greedy = false;
+    private $_is_greedy = false;
 
     /**
      * @param null|bool $greedy
@@ -21,7 +22,7 @@ class PjFreeze
         if ( null === $greedy ) {
             $greedy = false;
         }
-        $this->_greedy = (bool)$greedy;
+        $this->_is_greedy = (bool)$greedy;
     }
 
     /**
@@ -61,8 +62,9 @@ class PjFreeze
      */
     public function serialize($mValue)
     {
-        $Process = new PjFreezeProcess();
-        return $this->_doSerialize($mValue, $Process);
+        $Process = new PjFreezeProcess($this->_is_greedy);
+        $Status = new PjFreezeStatus($Process);
+        return $this->_doSerialize($mValue, $Status);
     }
 
     /**
@@ -72,8 +74,9 @@ class PjFreeze
      */
     public function serializeObject($Object)
     {
-        $Process = new PjFreezeProcess();
-        return $this->_doSerializeObject($Object, $Process);
+        $Process = new PjFreezeProcess($this->_is_greedy);
+        $Status = new PjFreezeStatus($Process);
+        return $this->_doSerializeObject($Object, $Status);
     }
 
     /**
@@ -83,43 +86,45 @@ class PjFreeze
      */
     public function serializeTraversable($mTraversable)
     {
-        $Process = new PjFreezeProcess();
-        return $this->_doSerializeTraversable($mTraversable, $Process);
+        $Process = new PjFreezeProcess($this->_is_greedy);
+        $Status = new PjFreezeStatus($Process);
+        return $this->_doSerializeTraversable($mTraversable, $Status);
     }
 
     /**
      * @param mixed $mValue
-     * @param PjFreezeProcess $Process
+     * @param PjFreezeStatus $Status
      * @throws Exc\EDontKnowHowToSerialize
      * @return SerializationResult
      */
-    protected function _doSerialize($mValue, PjFreezeProcess $Process)
+    protected function _doSerialize($mValue, PjFreezeStatus $Status)
     {
         if ( null === $mValue || is_scalar($mValue) ) {
-            return $Process->makeResult($mValue, $mValue);
+            return $Status->getProcess()->makeResult($mValue, $mValue);
         }
         else if ( $mValue instanceof \JsonSerializable ) {
-            return $Process->makeResult($mValue, $mValue->jsonSerialize());
+            return $Status->getProcess()->makeResult($mValue, $mValue->jsonSerialize());
         }
         else if ( $mValue instanceof \stdClass ) {
-            return $this->_doSerializeTraversable($mValue, $Process);
+            return $this->_doSerializeTraversable($mValue, $Status);
         }
         else if ( is_object($mValue) ) {
-            return $this->_doSerializeObject($mValue, $Process);
+            return $this->_doSerializeObject($mValue, $Status);
         }
         else if ( is_array($mValue) ) {
-            return $this->_doSerializeTraversable($mValue, $Process);
+            return $this->_doSerializeTraversable($mValue, $Status);
         }
         throw Exc\EDontKnowHowToSerialize::factory($mValue);
     }
 
     /**
      * @param object $Object
-     * @param PjFreezeProcess $Process
+     * @param PjFreezeStatus $Status
      * @return \stdClass|string
      */
-    protected function _doSerializeObject($Object, PjFreezeProcess $Process)
+    protected function _doSerializeObject($Object, PjFreezeStatus $Status)
     {
+        $Process = $Status->getProcess();
         if ( $Process->hasObject($Object) ) {
             $idx = $Process->tryGetObjectReference($Object);
             $key = self::buildKey($idx);
@@ -129,33 +134,22 @@ class PjFreeze
         $item = (object)$this->_serializeReflectionProperties(
             new \ReflectionObject($Object),
             $Object,
-            $Process
+            $Status
         );
-//        $item = new \stdClass();
-//        $idx = $Process->putObject($Object);
-//        $Reflection = new \ReflectionObject($Object);
-//        $properties = $Reflection->getProperties();
-//        foreach ( $properties as $Property ) {
-//            if ( $Property->isStatic() ) {
-//                continue;
-//            }
-//            $name = $Property->getName();
-//            $Property->setAccessible(true);
-//            $mValue = $Property->getValue($Object);
-//            $Res = $this->_doSerialize($mValue, $Process);
-//            $item->$name = $this->_extractSerialized($Res, $Process);
-//        }
-//        if ( $Reflection->getParentClass() ) {
-//
-//        }
         $Process->putObjectRepresentation($idx, $item);
         return $Process->makeResult($Object, $item);
     }
 
+    /**
+     * @param \ReflectionClass $Reflection
+     * @param $Object
+     * @param PjFreezeStatus $Status
+     * @return array
+     */
     protected function _serializeReflectionProperties(
         \ReflectionClass $Reflection,
         $Object,
-        PjFreezeProcess $Process
+        PjFreezeStatus $Status
     )
     {
         $items = [];
@@ -167,15 +161,17 @@ class PjFreeze
             $name = $Property->getName();
             $Property->setAccessible(true);
             $mValue = $Property->getValue($Object);
-            $Res = $this->_doSerialize($mValue, $Process);
-            $items[$name] = $this->_extractSerialized($Res, $Process);
+            $idx = $Status->getProcess()->tryGetObjectReference($Object);
+            $SubStatus = $Status->appendPathProperty($name, $idx);
+            $Res = $this->_doSerialize($mValue, $SubStatus);
+            $items[$name] = $this->_extractSerialized($Res, $SubStatus);
         }
         $ParentReflection = $Reflection->getParentClass();
         if ($ParentReflection) {
             $parent_items = $this->_serializeReflectionProperties(
                 $ParentReflection,
                 $Object,
-                $Process
+                $Status
             );
             $items = array_merge($parent_items, $items);
         }
@@ -184,11 +180,12 @@ class PjFreeze
 
     /**
      * @param array|\Traversable $mTraversable
-     * @param PjFreezeProcess $Process
+     * @param PjFreezeStatus $Status
      * @return array
      */
-    protected function _doSerializeTraversable($mTraversable, PjFreezeProcess $Process)
+    protected function _doSerializeTraversable($mTraversable, PjFreezeStatus $Status)
     {
+        $Process = $Status->getProcess();
         $idx = null;
         if ( is_object($mTraversable) ) {
             if ( $Process->hasObject($mTraversable) ) {
@@ -207,27 +204,15 @@ class PjFreeze
                 $items[$sub_key] = self::buildKey($sub_idx);
             }
             else {
-                $Res = $this->_doSerialize($mValue, $Process);
-                $items[$sub_key] = $this->_extractSerialized($Res, $Process);
+                $SubStatus = $Status->appendPathTraversable($sub_key, $sub_idx);
+                $Res = $this->_doSerialize($mValue, $SubStatus);
+                $items[$sub_key] = $this->_extractSerialized($Res, $SubStatus);
             }
         }
         if ( null !== $idx ) {
             $Process->putObjectRepresentation($idx, (object)$items);
         }
         return $Process->makeResult($mTraversable, $items);
-    }
-
-    /**
-     * @param mixed $mRoot
-     * @param PjFreezeProcess $Process
-     * @return mixed
-     */
-    protected function _processRoot($mRoot, PjFreezeProcess $Process)
-    {
-        if ( !is_object($mRoot) ) {
-            return $mRoot;
-        }
-        return $Process->tryGetObjectReference($mRoot);
     }
 
     /**
@@ -258,23 +243,23 @@ class PjFreeze
 
     /**
      * @param SerializationResult $Res
-     * @param PjFreezeProcess $Process
+     * @param PjFreezeStatus $Status
      * @return mixed
      */
     protected function _extractSerialized(
         SerializationResult $Res,
-        PjFreezeProcess $Process
+        PjFreezeStatus $Status
     )
     {
         $mRawRoot = $Res->getRawRoot();
-        if ( !$this->_greedy ) {
+        if ( !$this->_is_greedy ) {
             return $mRawRoot;
         }
         $ref = self::tryExtractReference($mRawRoot);
         if ( !$ref ) {
             return $mRawRoot;
         }
-        $mSerialized = $Process->tryGetObjectRepresentation($ref);
+        $mSerialized = $Status->getProcess()->tryGetObjectRepresentation($ref);
         if ( null === $mSerialized ) {
             return $mRawRoot;
         }
