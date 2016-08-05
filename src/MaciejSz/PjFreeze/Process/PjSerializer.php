@@ -46,11 +46,7 @@ class PjSerializer extends AFreezeWorkUnit
             return $Process->makeResult($key, $key);
         }
         $idx = $Process->putObject($Object);
-        $item = (object)$this->_serializeReflectionProperties(
-            new \ReflectionObject($Object),
-            $Object,
-            $Status
-        );
+        $item = (object)$this->_serializeReflectionProperties($Object, $Status);
         $Process->putObjectRepresentation($idx, $item);
         return $Process->makeResult($Object, $item);
     }
@@ -93,41 +89,29 @@ class PjSerializer extends AFreezeWorkUnit
     }
 
     /**
-     * @param \ReflectionClass $Reflection
      * @param $Object
      * @param PjSerializeStatus $Status
      * @return array
      */
-    protected function _serializeReflectionProperties(
-        \ReflectionClass $Reflection,
-        $Object,
-        PjSerializeStatus $Status
-    )
+    protected function _serializeReflectionProperties($Object, PjSerializeStatus $Status)
     {
-        $items = [];
-        $properties = $Reflection->getProperties();
+        $SubSerializer = new SerializeReflectionProperties($this, $Status);
+        $scalars = $SubSerializer->serializeScalars($Object);
+        $objects = $SubSerializer->serializeObjects($Object);
+        $properties = SerializeReflectionProperties::getAllProperties($Object);
+        $all = [];
         foreach ( $properties as $Property ) {
             if ( $Property->isStatic() ) {
                 continue;
             }
             $name = $Property->getName();
-            $Property->setAccessible(true);
-            $mValue = $Property->getValue($Object);
-            $idx = $Status->getProcess()->tryGetObjectReference($Object);
-            $SubStatus = $Status->appendPathProperty($name, $idx);
-            $Res = $this->serialize($mValue, $SubStatus);
-            $Process = $Status->getProcess();
-            $items[$name] = $Process->extractSerialized($Res);
+            if ( array_key_exists($name, $scalars) ) {
+                $all[$name] = $scalars[$name];
+            }
+            else {
+                $all[$name] = $objects[$name];
+            }
         }
-        $ParentReflection = $Reflection->getParentClass();
-        if ($ParentReflection) {
-            $parent_items = $this->_serializeReflectionProperties(
-                $ParentReflection,
-                $Object,
-                $Status
-            );
-            $items = array_merge($parent_items, $items);
-        }
-        return $items;
+        return $all;
     }
 }
