@@ -1,0 +1,35 @@
+{
+    "root": "##ref##0x0",
+    "objects": {
+        "0x1": {
+            "a": "a",
+            "Container": "##ref##0x0",
+            "b": "b"
+        },
+        "0x0": {
+            "Data1": {
+                "a": "a",
+                "Container": "##ref##0x0",
+                "b": "b"
+            },
+            "Data2": {
+                "a": "a",
+                "Container": "##ref##0x0",
+                "b": "b"
+            }
+        }
+    },
+    "meta": {
+        "classes": {
+            "0x0": "MaciejSzUtFix\\PjFreeze\\Misc\\Container",
+            "0x1": "MaciejSzUtFix\\PjFreeze\\Misc\\Data"
+        },
+        "versions": {
+            "MaciejSzUtFix\\PjFreeze\\Misc\\Container": 1,
+            "MaciejSzUtFix\\PjFreeze\\Misc\\Data": 1
+        },
+        "path_references": {
+            "Data1": "0x1"
+        }
+    }
+}

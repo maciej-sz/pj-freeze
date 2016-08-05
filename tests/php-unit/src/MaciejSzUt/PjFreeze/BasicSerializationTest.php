@@ -8,6 +8,8 @@ use MaciejSzUtFix\PjFreeze\FixtureHelper;
 use MaciejSzUtFix\PjFreeze\Forum\Post;
 use MaciejSzUtFix\PjFreeze\Forum\Thread;
 use MaciejSzUtFix\PjFreeze\Forum\User;
+use MaciejSzUtFix\PjFreeze\Misc\Container;
+use MaciejSzUtFix\PjFreeze\Misc\WithStatic;
 use PHPUnit\Framework\TestCase;
 
 class BasicSerializationTest extends TestCase
@@ -176,8 +178,6 @@ class BasicSerializationTest extends TestCase
         );
 
         $Thread->Author = $Kelly;
-        $Thread->posts[0]->Author = $John;
-        $Thread->posts[1]->Author = $Kelly;
         $Res02 = $Freeze->serialize($Thread);
         $this->assertEquals(
             $Helper->getContents(__FUNCTION__ . "_02"),
@@ -228,8 +228,6 @@ class BasicSerializationTest extends TestCase
         );
 
         $Thread->Author = $Kelly;
-        $Thread->posts[0]->Author = $John;
-        $Thread->posts[1]->Author = $Kelly;
         $Res02 = $Freeze->serialize($Thread);
         $this->assertEquals(
             $Helper->getContents(__FUNCTION__ . "_02"),
@@ -265,6 +263,32 @@ class BasicSerializationTest extends TestCase
         );
     }
 
+    public function testRecursiveContainer()
+    {
+        $Container = new Container();
+        $Res = PjFreeze::factory()->serialize($Container);
+
+        $Helper = FixtureHelper::factory("misc");
+
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__),
+            FixtureHelper::encodeJson($Res)
+        );
+    }
+
+    public function testRecursiveContainerGreedy()
+    {
+        $Container = new Container();
+        $Res = PjFreeze::greedy()->serialize($Container);
+
+        $Helper = FixtureHelper::factory("misc");
+
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__),
+            FixtureHelper::encodeJson($Res)
+        );
+    }
+
     public function testSerializeEncapsulatedProperties()
     {
         $Sub = new Sub();
@@ -272,6 +296,19 @@ class BasicSerializationTest extends TestCase
         $Res = PjFreeze::factory()->serialize($Sub);
 
         $Helper = FixtureHelper::factory("encapsulation");
+
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__),
+            FixtureHelper::encodeJson($Res)
+        );
+    }
+
+    public function testSerializeStatic()
+    {
+        $Object = new WithStatic();
+        $Res = PjFreeze::factory()->serialize($Object);
+
+        $Helper = FixtureHelper::factory("misc");
 
         $this->assertEquals(
             $Helper->getContents(__FUNCTION__),

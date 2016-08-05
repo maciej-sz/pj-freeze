@@ -1,13 +1,19 @@
 {
     "root": "##ref##0x0",
     "objects": {
-        "0x3": {
+        "0x1": {
+            "name": "John",
+            "email": null,
+            "joined": null,
+            "entries": []
+        },
+        "0x4": {
             "name": "Kelly",
             "email": null,
             "joined": null,
             "entries": []
         },
-        "0x2": {
+        "0x3": {
             "Author": {
                 "name": "Kelly",
                 "email": null,
@@ -16,9 +22,9 @@
             },
             "title": "Post #2",
             "contents": "bar",
-            "Thread": "##ref##0x1"
+            "Thread": "##ref##0x2"
         },
-        "0x1": {
+        "0x2": {
             "Author": null,
             "title": "Thread title",
             "contents": "Thread contents",
@@ -33,15 +39,9 @@
                     },
                     "title": "Post #2",
                     "contents": "bar",
-                    "Thread": "##ref##0x1"
+                    "Thread": "##ref##0x2"
                 }
             ]
-        },
-        "0x4": {
-            "name": "John",
-            "email": null,
-            "joined": null,
-            "entries": []
         },
         "0x0": {
             "Author": {
@@ -67,7 +67,7 @@
                         },
                         "title": "Post #2",
                         "contents": "bar",
-                        "Thread": "##ref##0x1"
+                        "Thread": "##ref##0x2"
                     }
                 ]
             }
@@ -76,21 +76,21 @@
     "meta": {
         "classes": {
             "0x0": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
-            "0x1": "MaciejSzUtFix\\PjFreeze\\Forum\\Thread",
-            "0x2": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
-            "0x3": "MaciejSzUtFix\\PjFreeze\\Forum\\User",
+            "0x1": "MaciejSzUtFix\\PjFreeze\\Forum\\User",
+            "0x2": "MaciejSzUtFix\\PjFreeze\\Forum\\Thread",
+            "0x3": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
             "0x4": "MaciejSzUtFix\\PjFreeze\\Forum\\User"
         },
         "versions": {
             "MaciejSzUtFix\\PjFreeze\\Forum\\Post": 1,
-            "MaciejSzUtFix\\PjFreeze\\Forum\\Thread": 1,
-            "MaciejSzUtFix\\PjFreeze\\Forum\\User": 123
+            "MaciejSzUtFix\\PjFreeze\\Forum\\User": 123,
+            "MaciejSzUtFix\\PjFreeze\\Forum\\Thread": 1
         },
         "path_references": {
-            "Thread": "0x1",
-            "Thread.posts.[1]": "0x2",
-            "Thread.posts.[1].Author": "0x3",
-            "Author": "0x4"
+            "Author": "0x1",
+            "Thread": "0x2",
+            "Thread.posts.[1]": "0x3",
+            "Thread.posts.[1].Author": "0x4"
         }
     }
 }
