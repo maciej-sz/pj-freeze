@@ -53,7 +53,7 @@ class PjFreeze extends AFreezeWorkUnit
 
     /**
      * @param mixed $mValue
-     * @return null
+     * @return null|string
      */
     public static function tryExtractReference($mValue)
     {

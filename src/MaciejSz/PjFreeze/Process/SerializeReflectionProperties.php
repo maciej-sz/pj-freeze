@@ -1,68 +1,20 @@
 <?php
 namespace MaciejSz\PjFreeze\Process;
 
-class SerializeReflectionProperties
+use MaciejSz\PjFreeze\PjFreeze;
+
+class SerializeReflectionProperties extends ASerializeWorkUnit
 {
     /**
-     * @var PjSerializer
-     */
-    private $_Serializer;
-
-    /**
-     * @var PjSerializeStatus
-     */
-    private $_Status;
-
-    /**
-     * @param PjSerializer $Serializer
-     * @param PjSerializeStatus $Status
-     */
-    public function __construct(PjSerializer $Serializer, PjSerializeStatus $Status)
-    {
-        $this->_Serializer = $Serializer;
-        $this->_Status = $Status;
-    }
-
-    /**
      * @param object $Object
      * @return array
      */
-    public function serializeScalars($Object)
+    public function serialize($Object)
     {
-        return $this->_doSerialize(
-            $Object,
-            function($mValue){
-                return !is_object($mValue);
-            }
-        );
-    }
-
-    /**
-     * @param object $Object
-     * @return array
-     */
-    public function serializeObjects($Object)
-    {
-        return $this->_doSerialize(
-            $Object,
-            function($mValue){
-                return is_object($mValue);
-            }
-        );
-    }
-
-    /**
-     * @param object $Object
-     * @param callable $cPredicate
-     * @return array
-     */
-    protected function _doSerialize($Object, callable $cPredicate = null)
-    {
-        if ( null === $cPredicate ) {
-            $cPredicate = function(){ return true; };
+        $items = $this->_Status->tryGetFillItems();
+        if ( !$items ) {
+            $items = [];
         }
-
-        $items = [];
         $properties = self::getAllProperties($Object);
         foreach ( $properties as $Property ) {
             if ( $Property->isStatic() ) {
@@ -71,14 +23,27 @@ class SerializeReflectionProperties
             $name = $Property->getName();
             $Property->setAccessible(true);
             $mValue = $Property->getValue($Object);
-            $idx = $this->_Status->getProcess()->tryGetObjectReference($Object);
-            $SubStatus = $this->_Status->appendPathProperty($name, $idx);
-            if ( !$cPredicate($mValue) ) {
+            if ( $this->_Status->getOnlyScalars() && !is_scalar($mValue) ) {
+                $items[$name] = null;
                 continue;
             }
+
+            $skip = false;
+            if ( array_key_exists($name, $items)) {
+                $skip = true;
+            }
+            if ( $skip && null === $items[$name] && null !== $mValue ) {
+                $skip = false;
+            }
+            if ( $skip ) {
+                continue;
+            }
+            
+            $SubStatus = $this->_Status->reset()->appendPath($name);
             $Res = $this->_Serializer->serialize($mValue, $SubStatus);
             $Process = $this->_Status->getProcess();
-            $items[$name] = $Process->extractSerialized($Res);
+            $mSerialized = $Process->extractSerialized($Res);
+            $items[$name] = $mSerialized;
         }
         return $items;
     }

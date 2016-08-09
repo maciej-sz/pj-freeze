@@ -342,4 +342,44 @@ class BasicSerializationTest extends TestCase
             FixtureHelper::encodeJson($Res)
         );
     }
+
+    public function testNestedArrays()
+    {
+        $arr = [
+            123,
+            [
+                "foo",
+                "bar",
+            ],
+        ];
+        $this->markTestIncomplete();
+    }
+
+    public function testNestedArraysGreedy()
+    {
+        $data1 = new \stdClass();
+        $data1->data = "foo";
+        $Post = new Post("post");
+
+        $arr1 = [
+            $data1,
+            $Post,
+            [
+                $data1,
+                $Post,
+            ],
+        ];
+
+        $arr2 = [
+            123,
+            [
+                $data1,
+                $data1,
+                $Post,
+                $Post,
+            ]
+        ];
+
+        $this->markTestIncomplete();
+    }
 }

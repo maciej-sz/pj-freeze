@@ -40,12 +40,24 @@ class PjSerializer extends AFreezeWorkUnit
     public function serializeObject($Object, PjSerializeStatus $Status)
     {
         $Process = $Status->getProcess();
+        $idx = null;
         if ( $Process->hasObject($Object) ) {
             $idx = $Process->tryGetObjectReference($Object);
             $key = PjFreeze::buildKey($idx);
-            return $Process->makeResult($key, $key);
+            if ( !$Status->tryGetFillItems() ) {
+                $Res = $Process->makeResult($key, $key);
+                $mSerialized = $Process->extractSerialized($Res);
+                if ( !PjFreeze::tryExtractReference($mSerialized) ) {
+                    $Status->savePathIdx($idx);
+                }
+                return $Res;
+            }
         }
-        $idx = $Process->putObject($Object);
+        else {
+            $idx = $Process->putObject($Object);
+            $Status = $Status->savePathIdx($idx);
+        }
+
         $item = (object)$this->_serializeReflectionProperties($Object, $Status);
         $Process->putObjectRepresentation($idx, $item);
         return $Process->makeResult($Object, $item);
@@ -54,7 +66,7 @@ class PjSerializer extends AFreezeWorkUnit
     /**
      * @param array|\Traversable $mTraversable
      * @param PjSerializeStatus $Status
-     * @return array
+     * @return SerializationResult
      */
     public function serializeTraversable($mTraversable, PjSerializeStatus $Status)
     {
@@ -63,25 +75,30 @@ class PjSerializer extends AFreezeWorkUnit
         if ( is_object($mTraversable) ) {
             if ( $Process->hasObject($mTraversable) ) {
                 $idx = $Process->tryGetObjectReference($mTraversable);
+                $Status->savePathIdx($idx);
                 $key = PjFreeze::buildKey($idx);
                 return $Process->makeResult($key, $key);
             }
             else {
                 $idx = $Process->putObject($mTraversable);
+                $Status = $Status->savePathIdx($idx);
             }
         }
-        $items = [];
-        foreach ( $mTraversable as $sub_key => $mValue ) {
-            $sub_idx = $Process->tryGetObjectReference($mValue);
-            if ( $sub_idx ) {
-                $items[$sub_key] = PjFreeze::buildKey($sub_idx);
-            }
-            else {
-                $SubStatus = $Status->appendPathTraversable($sub_key, $sub_idx);
-                $Res = $this->serialize($mValue, $SubStatus);
-                $items[$sub_key] = $Process->extractSerialized($Res);
-            }
-        }
+
+        $WorkUnit = new SerializeTraversable($this, $Status);
+        $items = $WorkUnit->serialize($mTraversable);
+//        $scalars = $WorkUnit->serializeScalars($mTraversable);
+//        $objects = $WorkUnit->serializeObjects($mTraversable);
+//        $all = [];
+//        foreach ( $mTraversable as $key => $mValue ) {
+//            if ( array_key_exists($key, $scalars) ) {
+//                $all[$key] = $scalars[$key];
+//            }
+//            else {
+//                $all[$key] = $objects[$key];
+//            }
+//        }
+
         if ( null !== $idx ) {
             $Process->putObjectRepresentation($idx, $items);
         }
@@ -95,23 +112,24 @@ class PjSerializer extends AFreezeWorkUnit
      */
     protected function _serializeReflectionProperties($Object, PjSerializeStatus $Status)
     {
-        $SubSerializer = new SerializeReflectionProperties($this, $Status);
-        $scalars = $SubSerializer->serializeScalars($Object);
-        $objects = $SubSerializer->serializeObjects($Object);
-        $properties = SerializeReflectionProperties::getAllProperties($Object);
-        $all = [];
-        foreach ( $properties as $Property ) {
-            if ( $Property->isStatic() ) {
-                continue;
-            }
-            $name = $Property->getName();
-            if ( array_key_exists($name, $scalars) ) {
-                $all[$name] = $scalars[$name];
-            }
-            else {
-                $all[$name] = $objects[$name];
-            }
-        }
-        return $all;
+        $WorkUnit = new SerializeReflectionProperties($this, $Status);
+        return $WorkUnit->serialize($Object);
+//        $scalars = $WorkUnit->serializeScalars($Object);
+//        $objects = $WorkUnit->serializeObjects($Object);
+//        $properties = SerializeReflectionProperties::getAllProperties($Object);
+//        $all = [];
+//        foreach ( $properties as $Property ) {
+//            if ( $Property->isStatic() ) {
+//                continue;
+//            }
+//            $name = $Property->getName();
+//            if ( array_key_exists($name, $scalars) ) {
+//                $all[$name] = $scalars[$name];
+//            }
+//            else {
+//                $all[$name] = $objects[$name];
+//            }
+//        }
+//        return $all;
     }
 }

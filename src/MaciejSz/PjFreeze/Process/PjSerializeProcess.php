@@ -21,6 +21,11 @@ class PjSerializeProcess
     private $_Instances;
 
     /**
+     * @var \SplObjectStorage
+     */
+    private $_ToFill;
+
+    /**
      * @var array
      */
     private $_references = [];
@@ -50,6 +55,7 @@ class PjSerializeProcess
         }
         $this->_is_greedy = $is_greedy;
         $this->_Instances = new \SplObjectStorage();
+        $this->_ToFill = new \SplObjectStorage();
     }
 
     /**
@@ -176,15 +182,50 @@ class PjSerializeProcess
         if ( !$this->_is_greedy ) {
             return $mRawRoot;
         }
-        $ref = PjFreeze::tryExtractReference($mRawRoot);
-        if ( !$ref ) {
+        $idx = PjFreeze::tryExtractReference($mRawRoot);
+        if ( !$idx ) {
             return $mRawRoot;
+        }
+        return $this->extractSerializedByIdx($idx, $mRawRoot);
+//        $mSerialized = $this->tryGetObjectRepresentation($idx);
+//        if ( null === $mSerialized ) {
+//            return $mRawRoot;
+//        }
+//        return $mSerialized;
+    }
+
+    /**
+     * @param string $ref
+     * @param null|mixed $mDefault
+     * @return mixed|null
+     */
+    public function extractSerializedByIdx($ref, $mDefault = null)
+    {
+        if ( !$ref ) {
+            return $mDefault;
         }
         $mSerialized = $this->tryGetObjectRepresentation($ref);
         if ( null === $mSerialized ) {
-            return $mRawRoot;
+            return $mDefault;
         }
         return $mSerialized;
+    }
+
+    /**
+     * @param $Object
+     * @param array $partial
+     */
+    public function attachToFill($Object, array $partial)
+    {
+        $this->_ToFill->attach($Object, $partial);
+    }
+
+    /**
+     * @return \SplObjectStorage
+     */
+    public function getToFill()
+    {
+        return $this->_ToFill;
     }
 
     /**

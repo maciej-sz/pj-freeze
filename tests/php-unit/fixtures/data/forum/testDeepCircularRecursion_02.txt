@@ -1,36 +1,36 @@
 {
     "root": "##ref##0x0",
     "objects": {
-        "0x2": {
-            "name": "John",
-            "email": null,
-            "joined": null,
-            "entries": []
-        },
         "0x1": {
-            "Author": "##ref##0x2",
-            "title": "Post #1",
-            "contents": "foo",
-            "Thread": "##ref##0x0"
-        },
-        "0x4": {
             "name": "Kelly",
             "email": null,
             "joined": null,
             "entries": []
         },
-        "0x3": {
+        "0x2": {
             "Author": "##ref##0x4",
+            "title": "Post #1",
+            "contents": "foo",
+            "Thread": "##ref##0x0"
+        },
+        "0x3": {
+            "Author": "##ref##0x1",
             "title": "Post #2",
             "contents": "bar",
             "Thread": "##ref##0x0"
         },
+        "0x4": {
+            "name": "John",
+            "email": null,
+            "joined": null,
+            "entries": []
+        },
         "0x0": {
-            "Author": "##ref##0x4",
+            "Author": "##ref##0x1",
             "title": "Thread title",
             "contents": "Thread contents",
             "posts": [
-                "##ref##0x1",
+                "##ref##0x2",
                 "##ref##0x3"
             ]
         }
@@ -38,15 +38,15 @@
     "meta": {
         "classes": {
             "0x0": "MaciejSzUtFix\\PjFreeze\\Forum\\Thread",
-            "0x1": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
-            "0x2": "MaciejSzUtFix\\PjFreeze\\Forum\\User",
+            "0x1": "MaciejSzUtFix\\PjFreeze\\Forum\\User",
+            "0x2": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
             "0x3": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
             "0x4": "MaciejSzUtFix\\PjFreeze\\Forum\\User"
         },
         "versions": {
             "MaciejSzUtFix\\PjFreeze\\Forum\\Thread": 1,
-            "MaciejSzUtFix\\PjFreeze\\Forum\\Post": 1,
-            "MaciejSzUtFix\\PjFreeze\\Forum\\User": 123
+            "MaciejSzUtFix\\PjFreeze\\Forum\\User": 123,
+            "MaciejSzUtFix\\PjFreeze\\Forum\\Post": 1
         }
     }
 }

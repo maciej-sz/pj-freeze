@@ -1,13 +1,13 @@
 {
     "root": "##ref##0x0",
     "objects": {
-        "0x2": {
-            "name": "John",
+        "0x1": {
+            "name": "Kelly",
             "email": null,
             "joined": null,
             "entries": []
         },
-        "0x1": {
+        "0x2": {
             "Author": {
                 "name": "John",
                 "email": null,
@@ -17,12 +17,6 @@
             "title": "Post #1",
             "contents": "foo",
             "Thread": "##ref##0x0"
-        },
-        "0x4": {
-            "name": "Kelly",
-            "email": null,
-            "joined": null,
-            "entries": []
         },
         "0x3": {
             "Author": {
@@ -34,6 +28,12 @@
             "title": "Post #2",
             "contents": "bar",
             "Thread": "##ref##0x0"
+        },
+        "0x4": {
+            "name": "John",
+            "email": null,
+            "joined": null,
+            "entries": []
         },
         "0x0": {
             "Author": {
@@ -73,21 +73,22 @@
     "meta": {
         "classes": {
             "0x0": "MaciejSzUtFix\\PjFreeze\\Forum\\Thread",
-            "0x1": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
-            "0x2": "MaciejSzUtFix\\PjFreeze\\Forum\\User",
+            "0x1": "MaciejSzUtFix\\PjFreeze\\Forum\\User",
+            "0x2": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
             "0x3": "MaciejSzUtFix\\PjFreeze\\Forum\\Post",
             "0x4": "MaciejSzUtFix\\PjFreeze\\Forum\\User"
         },
         "versions": {
             "MaciejSzUtFix\\PjFreeze\\Forum\\Thread": 1,
-            "MaciejSzUtFix\\PjFreeze\\Forum\\Post": 1,
-            "MaciejSzUtFix\\PjFreeze\\Forum\\User": 123
+            "MaciejSzUtFix\\PjFreeze\\Forum\\User": 123,
+            "MaciejSzUtFix\\PjFreeze\\Forum\\Post": 1
         },
         "path_references": {
-            "posts.[0]": "0x1",
-            "posts.[0].Author": "0x2",
+            "Author": "0x1",
+            "posts.[0]": "0x2",
             "posts.[1]": "0x3",
-            "posts.[1].Author": "0x4"
+            "posts.[0].Author": "0x4",
+            "posts.[1].Author": "0x1"
         }
     }
 }

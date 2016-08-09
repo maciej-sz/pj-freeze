@@ -7,17 +7,17 @@
             "joined": null,
             "entries": []
         },
-        "0x4": {
-            "name": "Kelly",
-            "email": null,
-            "joined": null,
-            "entries": []
-        },
         "0x3": {
             "Author": "##ref##0x4",
             "title": "Post #2",
             "contents": "bar",
             "Thread": "##ref##0x2"
+        },
+        "0x4": {
+            "name": "Kelly",
+            "email": null,
+            "joined": null,
+            "entries": []
         },
         "0x2": {
             "Author": null,
