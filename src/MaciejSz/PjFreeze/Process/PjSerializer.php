@@ -70,18 +70,10 @@ class PjSerializer
                 $idx = $Process->putObject($mTraversable);
             }
         }
-        $items = [];
-        foreach ( $mTraversable as $sub_key => $mValue ) {
-            $sub_idx = $Process->tryGetObjectReference($mValue);
-            if ( $sub_idx ) {
-                $items[$sub_key] = PjFreeze::buildKey($sub_idx);
-            }
-            else {
-                $SubStatus = $Status->appendPathTraversable($sub_key, $sub_idx);
-                $Res = $this->serialize($mValue, $SubStatus);
-                $items[$sub_key] = $Process->extractSerialized($Res);
-            }
-        }
+
+        $WorkUnit = new SerializeTraversable($this, $Status);
+        $items = $WorkUnit->serialize($mTraversable);
+
         if ( null !== $idx ) {
             $Process->putObjectRepresentation($idx, $items);
         }
