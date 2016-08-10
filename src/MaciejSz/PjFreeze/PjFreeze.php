@@ -8,7 +8,7 @@ use MaciejSz\PjFreeze\Process\PjSerializer;
 use MaciejSz\PjFreeze\Process\PjUnserializer;
 use MaciejSz\PjFreeze\Process\SerializationResult;
 
-class PjFreeze extends AFreezeWorkUnit
+class PjFreeze
 {
     const REFERENCE_PREFIX = "##ref##";
 
@@ -18,14 +18,6 @@ class PjFreeze extends AFreezeWorkUnit
     public static function factory()
     {
         return new self();
-    }
-
-    /**
-     * @return PjFreeze
-     */
-    public static function greedy()
-    {
-        return new self(true);
     }
 
     /**
@@ -75,7 +67,7 @@ class PjFreeze extends AFreezeWorkUnit
      */
     public function serialize($mValue)
     {
-        $Process = new PjSerializeProcess($this->_is_greedy);
+        $Process = new PjSerializeProcess();
         $Status = new PjSerializeStatus($Process);
         $Serializer = new PjSerializer();
         return $Serializer->serialize($mValue, $Status);
@@ -98,7 +90,7 @@ class PjFreeze extends AFreezeWorkUnit
      */
     public function serializeObject($Object)
     {
-        $Process = new PjSerializeProcess($this->_is_greedy);
+        $Process = new PjSerializeProcess();
         $Status = new PjSerializeStatus($Process);
         $Serializer = new PjSerializer();
         return $Serializer->serializeObject($Object, $Status);
@@ -111,7 +103,7 @@ class PjFreeze extends AFreezeWorkUnit
      */
     public function serializeTraversable($mTraversable)
     {
-        $Process = new PjSerializeProcess($this->_is_greedy);
+        $Process = new PjSerializeProcess();
         $Status = new PjSerializeStatus($Process);
         $Serializer = new PjSerializer();
         return $Serializer->serializeTraversable($mTraversable, $Status);

@@ -96,22 +96,6 @@ class PjSerializer extends AFreezeWorkUnit
     protected function _serializeReflectionProperties($Object, PjSerializeStatus $Status)
     {
         $SubSerializer = new SerializeReflectionProperties($this, $Status);
-        $scalars = $SubSerializer->serializeScalars($Object);
-        $objects = $SubSerializer->serializeObjects($Object);
-        $properties = SerializeReflectionProperties::getAllProperties($Object);
-        $all = [];
-        foreach ( $properties as $Property ) {
-            if ( $Property->isStatic() ) {
-                continue;
-            }
-            $name = $Property->getName();
-            if ( array_key_exists($name, $scalars) ) {
-                $all[$name] = $scalars[$name];
-            }
-            else {
-                $all[$name] = $objects[$name];
-            }
-        }
-        return $all;
+        return $SubSerializer->serialize($Object);
     }
 }

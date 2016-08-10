@@ -1,67 +1,14 @@
 <?php
 namespace MaciejSz\PjFreeze\Process;
 
-class SerializeReflectionProperties
+class SerializeReflectionProperties extends ASerializeWorkUnit
 {
     /**
-     * @var PjSerializer
-     */
-    private $_Serializer;
-
-    /**
-     * @var PjSerializeStatus
-     */
-    private $_Status;
-
-    /**
-     * @param PjSerializer $Serializer
-     * @param PjSerializeStatus $Status
-     */
-    public function __construct(PjSerializer $Serializer, PjSerializeStatus $Status)
-    {
-        $this->_Serializer = $Serializer;
-        $this->_Status = $Status;
-    }
-
-    /**
      * @param object $Object
      * @return array
      */
-    public function serializeScalars($Object)
+    public function serialize($Object)
     {
-        return $this->_doSerialize(
-            $Object,
-            function($mValue){
-                return !is_object($mValue);
-            }
-        );
-    }
-
-    /**
-     * @param object $Object
-     * @return array
-     */
-    public function serializeObjects($Object)
-    {
-        return $this->_doSerialize(
-            $Object,
-            function($mValue){
-                return is_object($mValue);
-            }
-        );
-    }
-
-    /**
-     * @param object $Object
-     * @param callable $cPredicate
-     * @return array
-     */
-    protected function _doSerialize($Object, callable $cPredicate = null)
-    {
-        if ( null === $cPredicate ) {
-            $cPredicate = function(){ return true; };
-        }
-
         $items = [];
         $properties = self::getAllProperties($Object);
         foreach ( $properties as $Property ) {
@@ -73,9 +20,6 @@ class SerializeReflectionProperties
             $mValue = $Property->getValue($Object);
             $idx = $this->_Status->getProcess()->tryGetObjectReference($Object);
             $SubStatus = $this->_Status->appendPathProperty($name, $idx);
-            if ( !$cPredicate($mValue) ) {
-                continue;
-            }
             $Res = $this->_Serializer->serialize($mValue, $SubStatus);
             $Process = $this->_Status->getProcess();
             $items[$name] = $Process->extractSerialized($Res);

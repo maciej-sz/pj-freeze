@@ -11,11 +11,6 @@ use MaciejSz\PjFreeze\PjFreeze;
 class PjSerializeProcess
 {
     /**
-     * @var bool
-     */
-    private $_is_greedy = false;
-
-    /**
      * @var \SplObjectStorage
      */
     private $_Instances;
@@ -41,14 +36,9 @@ class PjSerializeProcess
     private $_meta = null;
 
     /**
-     * @param null|bool $is_greedy
      */
-    public function __construct($is_greedy = null)
+    public function __construct()
     {
-        if ( null === $is_greedy ) {
-            $is_greedy = false;
-        }
-        $this->_is_greedy = $is_greedy;
         $this->_Instances = new \SplObjectStorage();
     }
 
@@ -145,9 +135,6 @@ class PjSerializeProcess
             $this->_serialized_objects_dict,
             $this->_meta
         );
-        if ( $this->_is_greedy ) {
-            $Result = $Result->withPathReferences($this->_path_references);
-        }
         return $Result;
     }
 
@@ -172,19 +159,7 @@ class PjSerializeProcess
      */
     public function extractSerialized(SerializationResult $Res)
     {
-        $mRawRoot = $Res->getRawRoot();
-        if ( !$this->_is_greedy ) {
-            return $mRawRoot;
-        }
-        $ref = PjFreeze::tryExtractReference($mRawRoot);
-        if ( !$ref ) {
-            return $mRawRoot;
-        }
-        $mSerialized = $this->tryGetObjectRepresentation($ref);
-        if ( null === $mSerialized ) {
-            return $mRawRoot;
-        }
-        return $mSerialized;
+        return $Res->getRawRoot();
     }
 
     /**
