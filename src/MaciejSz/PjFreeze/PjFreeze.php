@@ -1,7 +1,6 @@
 <?php
 namespace MaciejSz\PjFreeze;
 
-use MaciejSz\PjFreeze\Process\AFreezeWorkUnit;
 use MaciejSz\PjFreeze\Process\PjSerializeProcess;
 use MaciejSz\PjFreeze\Process\PjSerializeStatus;
 use MaciejSz\PjFreeze\Process\PjSerializer;

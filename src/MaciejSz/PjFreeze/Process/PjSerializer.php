@@ -4,7 +4,7 @@ namespace MaciejSz\PjFreeze\Process;
 use MaciejSz\PjFreeze\Exc\EDontKnowHowToSerialize;
 use MaciejSz\PjFreeze\PjFreeze;
 
-class PjSerializer extends AFreezeWorkUnit
+class PjSerializer
 {
     /**
      * @param mixed $mValue
