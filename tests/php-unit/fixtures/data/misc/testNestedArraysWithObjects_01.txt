@@ -1,0 +1,31 @@
+{
+    "root": [
+        "##ref##0x0",
+        "##ref##0x1",
+        [
+            "##ref##0x0",
+            "##ref##0x1"
+        ]
+    ],
+    "objects": {
+        "0x0": {
+            "data": "foo"
+        },
+        "0x1": {
+            "Author": null,
+            "title": "post",
+            "contents": null,
+            "Thread": null
+        }
+    },
+    "meta": {
+        "classes": {
+            "0x0": "stdClass",
+            "0x1": "MaciejSzUtFix\\PjFreeze\\Forum\\Post"
+        },
+        "versions": {
+            "stdClass": 1,
+            "MaciejSzUtFix\\PjFreeze\\Forum\\Post": 1
+        }
+    }
+}

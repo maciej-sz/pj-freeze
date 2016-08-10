@@ -231,4 +231,67 @@ class BasicSerializationTest extends TestCase
             FixtureHelper::encodeJson($Res)
         );
     }
+
+    public function testNestedArrays()
+    {
+        $arr = [
+            123,
+            [
+                "foo",
+                "bar",
+            ],
+        ];
+
+        $Freeze = PjFreeze::factory();
+        $Res = $Freeze->serializeTraversable($arr);
+
+        $this->assertSame(
+            var_export($arr, true),
+            var_export($Res->getRoot(), true)
+        );
+    }
+
+    public function testNestedArraysWithObjects()
+    {
+        $Helper = FixtureHelper::factory("misc");
+        $Freeze = PjFreeze::factory();
+
+
+        $data1 = new \stdClass();
+        $data1->data = "foo";
+        $Post = new Post("post");
+
+        $arr1 = [
+            $data1,
+            $Post,
+            [
+                $data1,
+                $Post,
+            ],
+        ];
+
+        $Res1 = $Freeze->serializeTraversable($arr1);
+
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__ . "_01"),
+            FixtureHelper::encodeJson($Res1)
+        );
+
+        $arr2 = [
+            123,
+            [
+                $data1,
+                $data1,
+                $Post,
+                $Post,
+            ]
+        ];
+
+        $Res2 = $Freeze->serializeTraversable($arr2);
+
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__ . "_02"),
+            FixtureHelper::encodeJson($Res2)
+        );
+    }
 }
