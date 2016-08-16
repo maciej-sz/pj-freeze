@@ -1,6 +1,8 @@
 <?php
 namespace MaciejSz\PjFreeze\Exc;
 
+use MaciejSz\PjFreeze\Process\ValueInfo;
+
 class EDontKnowHowToSerialize extends \RuntimeException
 {
     /**
@@ -17,20 +19,7 @@ class EDontKnowHowToSerialize extends \RuntimeException
      */
     public static function factory($mValue)
     {
-        $info = null;
-        if ( is_object($mValue) ) {
-            $info = "object (" . get_class($mValue) . ")";
-        }
-        else if ( is_array($mValue) ) {
-            $info = "array (" . count($mValue) . ")";
-        }
-        else if ( is_resource($mValue) ) {
-            $info = "resource";
-        }
-        else {
-            $info = "{$mValue}";
-        }
-
+        $info = ValueInfo::make($mValue);
         return new self($info);
     }
 }

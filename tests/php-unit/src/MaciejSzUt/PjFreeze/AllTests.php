@@ -8,6 +8,7 @@ class AllTests extends \PHPUnit_Framework_TestSuite
         $Suite = new self();
 
         $Suite->addTestSuite(BasicSerializationTest::class);
+        $Suite->addTestSuite(BasicUnserializationTest::class);
 
         return $Suite;
     }

@@ -79,7 +79,17 @@ class PjFreeze
     public function unserialize(\stdClass $data)
     {
         $Unserializer = new PjUnserializer();
-        return $Unserializer->unserialize($data->root, $data);
+        return $Unserializer->unserialize($data);
+    }
+
+    /**
+     * @param string $json_string
+     * @return mixed
+     */
+    public function unserializeJson($json_string)
+    {
+        $data = json_decode($json_string);
+        return $this->unserialize($data);
     }
 
     /**

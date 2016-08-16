@@ -6,72 +6,102 @@ use MaciejSz\PjFreeze\PjFreeze;
 
 class PjUnserializer
 {
-    public function unserialize($mValue, \stdClass $data)
+    /**
+     * @param \stdClass $serialized
+     * @return mixed
+     */
+    public function unserialize(\stdClass $serialized)
     {
-        if ( PjFreeze::tryExtractReference($mValue) ) {
-            return $this->_unserializeObject($mValue, $data);
+        $Process = new PjUnserializeProcess($serialized);
+        return $this->_unserialize($serialized->root, $Process);
+    }
+
+    /**
+     * @param mixed $mValue
+     * @param PjUnserializeProcess $Process
+     * @return mixed
+     */
+    protected function _unserialize($mValue, PjUnserializeProcess $Process)
+    {
+        if ( null === $mValue ) {
+            return null;
+        }
+        else if ( PjFreeze::tryExtractReference($mValue) ) {
+            return $this->_unserializeObject($mValue, $Process);
+        }
+        else if ( is_scalar($mValue) || is_array($mValue) ) {
+            return $mValue;
+        }
+        else {
+            throw EDontKnowHowToUnserialize::factory($mValue);
         }
     }
 
     /**
      * @param string $reference
-     * @param \stdClass $data
+     * @param PjUnserializeProcess $Process
      * @return object
      */
-    protected function _unserializeObject($reference, \stdClass $data)
+    protected function _unserializeObject($reference, PjUnserializeProcess $Process)
     {
         $idx = PjFreeze::tryExtractReference($reference);
-        $object = $data->objects->$idx;
-        $class = $data->meta->classes->$idx;
-        $Instance = null;
+        $serialized = $Process->getSerialized();
+        $class = $serialized->meta->classes[$idx];
+        $Instance = $Process->tryGetObject($idx);
+        if ( null !== $Instance ) {
+            return $Instance;
+        }
         if ( "stdclass" === strtolower(ltrim($class, "\\")) ) {
-            $Instance = $this->_unserializeStdObject($reference, $data);
+            $Instance = $this->_unserializeStdObject($idx, $Process);
         }
         else {
-            $Instance = $this->_unserializeReflectableObject($reference, $data);
+            $Instance = $this->_unserializeReflectableObject($idx, $Process);
         }
         return $Instance;
     }
 
     /**
-     * @param string $reference
-     * @param \stdClass $data
+     * @param string $idx
+     * @param PjUnserializeProcess $Process
      * @return \stdClass
      */
-    protected function _unserializeStdObject($reference, \stdClass $data)
+    protected function _unserializeStdObject($idx, PjUnserializeProcess $Process)
     {
-        $idx = PjFreeze::tryExtractReference($reference);
-        $object = $data->objects->$idx;
+        $object = $Process->getSerialized()->objects[$idx];
         $instance = new \stdClass();
+        $Process->putObject($idx, $instance);
         foreach ( $object as $key => $mSubValue ) {
-            $instance->$key = $this->unserialize($mSubValue, $data);
+            $instance->$key = $this->_unserialize($mSubValue, $Process);
         }
         return $instance;
     }
 
     /**
-     * @param $reference
-     * @param \stdClass $data
+     * @param $idx
+     * @param PjUnserializeProcess $Process
      * @return object
-     * @throws EDontKnowHowToUnserialize
      */
-    protected function _unserializeReflectableObject($reference, \stdClass $data)
+    protected function _unserializeReflectableObject(
+        $idx,
+        PjUnserializeProcess $Process
+    )
     {
-        $idx = PjFreeze::tryExtractReference($reference);
-        $object = $data->objects->$idx;
-        $class = $data->meta->classes->$idx;
+        $serialized = $Process->getSerialized();
+        $object = $serialized->objects[$idx];
+        $class = $serialized->meta->classes[$idx];
 
         $Reflection = new \ReflectionClass($class);
         $Instance = $Reflection->newInstanceWithoutConstructor();
+        $Process->putObject($idx, $Instance);
 
         if ( is_object($object) ) {
-            $this->_fillReflectableObject($object, $Instance, $data);
+            $this->_fillReflectableObject($object, $Instance, $Process);
         }
         else if ( is_array($object) ) {
-            $this->_fillTraversableObject($object, $Instance, $data);
+            $this->_fillTraversableObject($object, $Instance, $Process);
         }
         else {
-            throw new EDontKnowHowToUnserialize($reference);
+            throw EDontKnowHowToUnserialize::factoryReference($idx);
         }
 
         return $Instance;
@@ -80,18 +110,17 @@ class PjUnserializer
     /**
      * @param $object
      * @param $Instance
-     * @param \stdClass $data
-     * @return void
+     * @param PjUnserializeProcess $Process
      */
     protected function _fillReflectableObject(
         $object,
         $Instance,
-        \stdClass $data
+        PjUnserializeProcess $Process
     )
     {
         $Reflection = new \ReflectionObject($Instance);
         foreach ( $object as $key => $mSubValue ) {
-            $mUnserialzedSubValue = $this->unserialize($mSubValue, $data);
+            $mUnserialzedSubValue = $this->_unserialize($mSubValue, $Process);
             $Property = $Reflection->getProperty($key);
             $Property->setAccessible(true);
             $Property->setValue($Instance, $mUnserialzedSubValue);
@@ -101,21 +130,16 @@ class PjUnserializer
     /**
      * @param $object
      * @param $Instance
-     * @param \stdClass $data
+     * @param PjUnserializeProcess $Process
      */
     protected function _fillTraversableObject(
         $object,
         $Instance,
-        \stdClass $data
+        PjUnserializeProcess $Process
     )
     {
         foreach ( $object as $key => $mSubValue ) {
-            $Instance[$key] = $this->unserialize($mSubValue, $data);
+            $Instance[$key] = $this->_unserialize($mSubValue, $Process);
         }
-    }
-
-    protected function _unserializeTraversable(array $items, \stdClass $data)
-    {
-
     }
 }

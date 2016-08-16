@@ -172,7 +172,7 @@ class PjSerializeProcess
         }
         $this->_meta = (object)[
             "classes" => [],
-            "versions" => (object)[],
+            "versions" => [],
         ];
         return $this;
     }
@@ -185,13 +185,13 @@ class PjSerializeProcess
      */
     protected function _setVersion($class, $version)
     {
-        if ( isset($this->_meta->versions->$class) ) {
-            if ( $this->_meta->versions->$class !== $version ) {
-                throw new EVersionMismatch($this->_meta->versions->$class, $version);
+        if ( isset($this->_meta->versions[$class]) ) {
+            if ( $this->_meta->versions[$class] !== $version ) {
+                throw new EVersionMismatch($this->_meta->versions[$class], $version);
             }
             return $this;
         }
-        $this->_meta->versions->$class = $version;
+        $this->_meta->versions[$class] = $version;
         return $this;
     }
 }
