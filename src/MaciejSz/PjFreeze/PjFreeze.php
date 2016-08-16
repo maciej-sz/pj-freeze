@@ -4,6 +4,7 @@ namespace MaciejSz\PjFreeze;
 use MaciejSz\PjFreeze\Process\PjSerializeProcess;
 use MaciejSz\PjFreeze\Process\PjSerializeStatus;
 use MaciejSz\PjFreeze\Process\PjSerializer;
+use MaciejSz\PjFreeze\Process\PjUnserializeProcess;
 use MaciejSz\PjFreeze\Process\PjUnserializer;
 use MaciejSz\PjFreeze\Process\SerializationResult;
 
@@ -79,7 +80,8 @@ class PjFreeze
     public function unserialize(\stdClass $data)
     {
         $Unserializer = new PjUnserializer();
-        return $Unserializer->unserialize($data);
+        $Process = new PjUnserializeProcess($data);
+        return $Unserializer->unserialize($data->root, $Process);
     }
 
     /**

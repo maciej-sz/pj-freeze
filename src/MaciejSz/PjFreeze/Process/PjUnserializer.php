@@ -7,21 +7,11 @@ use MaciejSz\PjFreeze\PjFreeze;
 class PjUnserializer
 {
     /**
-     * @param \stdClass $serialized
-     * @return mixed
-     */
-    public function unserialize(\stdClass $serialized)
-    {
-        $Process = new PjUnserializeProcess($serialized);
-        return $this->_unserialize($serialized->root, $Process);
-    }
-
-    /**
      * @param mixed $mValue
      * @param PjUnserializeProcess $Process
      * @return mixed
      */
-    protected function _unserialize($mValue, PjUnserializeProcess $Process)
+    public function unserialize($mValue, PjUnserializeProcess $Process)
     {
         if ( null === $mValue ) {
             return null;
@@ -29,8 +19,11 @@ class PjUnserializer
         else if ( PjFreeze::tryExtractReference($mValue) ) {
             return $this->_unserializeObject($mValue, $Process);
         }
-        else if ( is_scalar($mValue) || is_array($mValue) ) {
+        else if ( is_scalar($mValue) ) {
             return $mValue;
+        }
+        else if ( is_array($mValue) ) {
+            return $this->_unserializeArray($mValue, $Process);
         }
         else {
             throw EDontKnowHowToUnserialize::factory($mValue);
@@ -71,7 +64,7 @@ class PjUnserializer
         $instance = new \stdClass();
         $Process->putObject($idx, $instance);
         foreach ( $object as $key => $mSubValue ) {
-            $instance->$key = $this->_unserialize($mSubValue, $Process);
+            $instance->$key = $this->unserialize($mSubValue, $Process);
         }
         return $instance;
     }
@@ -118,13 +111,8 @@ class PjUnserializer
         PjUnserializeProcess $Process
     )
     {
-        $Reflection = new \ReflectionObject($Instance);
-        foreach ( $object as $key => $mSubValue ) {
-            $mUnserialzedSubValue = $this->_unserialize($mSubValue, $Process);
-            $Property = $Reflection->getProperty($key);
-            $Property->setAccessible(true);
-            $Property->setValue($Instance, $mUnserialzedSubValue);
-        }
+        $Filler = new UnserializerReflectionPropertiesFiller($this, $Process);
+        $Filler->fill($object, $Instance);
     }
 
     /**
@@ -139,7 +127,21 @@ class PjUnserializer
     )
     {
         foreach ( $object as $key => $mSubValue ) {
-            $Instance[$key] = $this->_unserialize($mSubValue, $Process);
+            $Instance[$key] = $this->unserialize($mSubValue, $Process);
         }
+    }
+
+    /**
+     * @param array $arr
+     * @param PjUnserializeProcess $Process
+     * @return array
+     */
+    protected function _unserializeArray(array $arr, PjUnserializeProcess $Process)
+    {
+        $res = [];
+        foreach ( $arr as $key => $mValue ) {
+            $res[$key] = $this->unserialize($mValue, $Process);
+        }
+        return $res;
     }
 }
