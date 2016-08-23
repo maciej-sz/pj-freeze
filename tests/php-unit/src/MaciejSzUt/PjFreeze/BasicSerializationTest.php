@@ -97,20 +97,6 @@ class BasicSerializationTest extends TestCase
         );
     }
 
-    public function testDirectCircularRecursionGreedy()
-    {
-        $std = new \stdClass();
-        $std->std = $std;
-
-        $Res = PjFreeze::greedy()->serialize($std);
-
-        $Helper = FixtureHelper::factory("misc");
-        $this->assertEquals(
-            $Helper->getContents(__FUNCTION__),
-            $Helper->encodeJson($Res)
-        );
-    }
-
     public function testLevel1ArrayRecursion()
     {
         $Thread = new Thread("Thread title", "Thread contents");
@@ -127,26 +113,6 @@ class BasicSerializationTest extends TestCase
             $Helper->getContents(__FUNCTION__),
             FixtureHelper::encodeJson($Res)
         );
-    }
-
-    public function testLevel1ArrayRecursionGreedy()
-    {
-        $Thread = new Thread("Thread title", "Thread contents");
-        $Thread->posts[] = new Post("Post #1", "foo");
-        $Thread->posts[] = new Post("Post #2", "bar");
-        $Thread->posts[0]->Thread = $Thread;
-        $Thread->posts[1]->Thread = $Thread;
-
-        $Res = PjFreeze::greedy()->serialize($Thread);
-
-        $Helper = FixtureHelper::factory("forum");
-        $this->assertEquals(
-            $Helper->getContents(__FUNCTION__),
-            FixtureHelper::encodeJson($Res)
-        );
-
-        $this->assertEquals("foo", $Res->getRoot()->posts[0]->contents);
-        $this->assertEquals("bar", $Res->getRoot()->posts[1]->contents);
     }
 
     public function testDeepCircularRecursion()
@@ -199,87 +165,10 @@ class BasicSerializationTest extends TestCase
         );
     }
 
-    public function testDeepCircularRecursionGreedy()
-    {
-        $Thread = new Thread("Thread title", "Thread contents");
-        $Thread->posts[] = new Post("Post #1", "foo");
-        $Thread->posts[] = new Post("Post #2", "bar");
-        $Thread->posts[0]->Thread = $Thread;
-        $Thread->posts[1]->Thread = $Thread;
-
-        $John = new User("John");
-        $Kelly = new User("Kelly");
-
-        $Thread->posts[0]->Author = $John;
-        $Thread->posts[1]->Author = $Kelly;
-
-        $Freeze = PjFreeze::greedy();
-        $Helper = FixtureHelper::factory("forum");
-
-        $Res01 = $Freeze->serialize($Thread);
-        $this->assertEquals(
-            $Helper->getContents(__FUNCTION__ . "_01"),
-            FixtureHelper::encodeJson($Res01)
-        );
-        $Res01a = $Freeze->serialize($Thread->posts[0]);
-        $this->assertEquals(
-            $Helper->getContents(__FUNCTION__ . "_01a"),
-            FixtureHelper::encodeJson($Res01a)
-        );
-
-        $Thread->Author = $Kelly;
-        $Res02 = $Freeze->serialize($Thread);
-        $this->assertEquals(
-            $Helper->getContents(__FUNCTION__ . "_02"),
-            FixtureHelper::encodeJson($Res02)
-        );
-
-        $John->entries[] = $Thread->posts[0];
-        $Kelly->entries[] = $Thread;
-        $Kelly->entries[] = $Thread->posts[1];
-        $Res03 = $Freeze->serialize($Thread);
-        $this->assertEquals(
-            $Helper->getContents(__FUNCTION__ . "_03"),
-            FixtureHelper::encodeJson($Res03)
-        );
-        $Res03a = $Freeze->serialize($Kelly);
-        $this->assertEquals(
-            $Helper->getContents(__FUNCTION__ . "_03a"),
-            FixtureHelper::encodeJson($Res03a)
-        );
-
-        $this->markTestIncomplete(
-            "In future versions this should produce different result." . PHP_EOL
-            . " The serialization process should be 2 steps:" . PHP_EOL
-            . " 1) serialize all scalar properties of an object" . PHP_EOL
-            . " 2) add that half-ready element to result list" . PHP_EOL
-            . " 3) loop second time and serialize all non-scalar properties" . PHP_EOL
-            . " This way we will have better structure of greedy output." . PHP_EOL
-            . " An issue to keep in mind during this is the serialization of" . PHP_EOL
-            . " traversable elements. If the traversable contains at least one" . PHP_EOL
-            . " element which is an object, then this traversable should be" . PHP_EOL
-            . " serialized in second step. Otherwise it can be serialized" . PHP_EOL
-            . " during first step." . PHP_EOL
-        );
-    }
-
     public function testRecursiveContainer()
     {
         $Container = new Container();
         $Res = PjFreeze::factory()->serialize($Container);
-
-        $Helper = FixtureHelper::factory("misc");
-
-        $this->assertEquals(
-            $Helper->getContents(__FUNCTION__),
-            FixtureHelper::encodeJson($Res)
-        );
-    }
-
-    public function testRecursiveContainerGreedy()
-    {
-        $Container = new Container();
-        $Res = PjFreeze::greedy()->serialize($Container);
 
         $Helper = FixtureHelper::factory("misc");
 
@@ -352,11 +241,22 @@ class BasicSerializationTest extends TestCase
                 "bar",
             ],
         ];
-        $this->markTestIncomplete();
+
+        $Freeze = PjFreeze::factory();
+        $Res = $Freeze->serializeTraversable($arr);
+
+        $this->assertSame(
+            var_export($arr, true),
+            var_export($Res->getRoot(), true)
+        );
     }
 
-    public function testNestedArraysGreedy()
+    public function testNestedArraysWithObjects()
     {
+        $Helper = FixtureHelper::factory("misc");
+        $Freeze = PjFreeze::factory();
+
+
         $data1 = new \stdClass();
         $data1->data = "foo";
         $Post = new Post("post");
@@ -370,6 +270,13 @@ class BasicSerializationTest extends TestCase
             ],
         ];
 
+        $Res1 = $Freeze->serializeTraversable($arr1);
+
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__ . "_01"),
+            FixtureHelper::encodeJson($Res1)
+        );
+
         $arr2 = [
             123,
             [
@@ -380,6 +287,11 @@ class BasicSerializationTest extends TestCase
             ]
         ];
 
-        $this->markTestIncomplete();
+        $Res2 = $Freeze->serializeTraversable($arr2);
+
+        $this->assertEquals(
+            $Helper->getContents(__FUNCTION__ . "_02"),
+            FixtureHelper::encodeJson($Res2)
+        );
     }
 }

@@ -16,12 +16,6 @@
                 "##ref##0x2"
             ]
         },
-        "0x3": {
-            "Author": "##ref##0x4",
-            "title": "Post #1",
-            "contents": "foo",
-            "Thread": "##ref##0x0"
-        },
         "0x4": {
             "name": "John",
             "email": null,
@@ -29,6 +23,12 @@
             "entries": [
                 "##ref##0x3"
             ]
+        },
+        "0x3": {
+            "Author": "##ref##0x4",
+            "title": "Post #1",
+            "contents": "foo",
+            "Thread": "##ref##0x0"
         },
         "0x0": {
             "Author": "##ref##0x1",

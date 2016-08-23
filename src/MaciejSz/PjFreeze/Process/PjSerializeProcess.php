@@ -11,24 +11,9 @@ use MaciejSz\PjFreeze\PjFreeze;
 class PjSerializeProcess
 {
     /**
-     * @var bool
-     */
-    private $_is_greedy = false;
-
-    /**
      * @var \SplObjectStorage
      */
-    private $_Instances;
-
-    /**
-     * @var \SplObjectStorage
-     */
-    private $_ToFill;
-
-    /**
-     * @var array
-     */
-    private $_references = [];
+    private $_Seen;
 
     /**
      * @var array
@@ -46,28 +31,22 @@ class PjSerializeProcess
     private $_meta = null;
 
     /**
-     * @param null|bool $is_greedy
      */
-    public function __construct($is_greedy = null)
+    public function __construct()
     {
-        if ( null === $is_greedy ) {
-            $is_greedy = false;
-        }
-        $this->_is_greedy = $is_greedy;
-        $this->_Instances = new \SplObjectStorage();
-        $this->_ToFill = new \SplObjectStorage();
+        $this->_Seen = new \SplObjectStorage();
     }
 
     /**
      * @param object $Object
      * @return bool
      */
-    public function hasObject($Object)
+    public function hasSeen($Object)
     {
         if ( !is_object($Object) ) {
             return false;
         }
-        return $this->_Instances->contains($Object);
+        return $this->_Seen->contains($Object);
     }
 
     /**
@@ -75,12 +54,11 @@ class PjSerializeProcess
      * @return int
      * @throws EInvalidVersion
      */
-    public function putObject($Object)
+    public function putSeen($Object)
     {
-        $idx = count($this->_references);
+        $idx = count($this->_Seen);
         $idx = "0x" . dechex($idx);
-        $this->_Instances->attach($Object, $idx);
-        $this->_references[$idx] = $Object;
+        $this->_Seen->attach($Object, $idx);
 
         $this->_ensureMeta();
 
@@ -104,18 +82,6 @@ class PjSerializeProcess
     public function putObjectRepresentation($idx, $serialized)
     {
         $this->_serialized_objects_dict[$idx] = $serialized;
-    }
-
-    /**
-     * @param string $idx
-     * @return mixed
-     */
-    public function tryGetObjectRepresentation($idx)
-    {
-        if ( isset($this->_serialized_objects_dict[$idx]) ) {
-            return $this->_serialized_objects_dict[$idx];
-        }
-        return null;
     }
 
     /**
@@ -151,9 +117,6 @@ class PjSerializeProcess
             $this->_serialized_objects_dict,
             $this->_meta
         );
-        if ( $this->_is_greedy ) {
-            $Result = $Result->withPathReferences($this->_path_references);
-        }
         return $Result;
     }
 
@@ -166,10 +129,10 @@ class PjSerializeProcess
         if ( !is_object($Object) ) {
             return null;
         }
-        if ( !$this->hasObject($Object) ) {
+        if ( !$this->hasSeen($Object) ) {
             return null;
         }
-        return $this->_Instances->offsetGet($Object);
+        return $this->_Seen->offsetGet($Object);
     }
 
     /**
@@ -178,54 +141,7 @@ class PjSerializeProcess
      */
     public function extractSerialized(SerializationResult $Res)
     {
-        $mRawRoot = $Res->getRawRoot();
-        if ( !$this->_is_greedy ) {
-            return $mRawRoot;
-        }
-        $idx = PjFreeze::tryExtractReference($mRawRoot);
-        if ( !$idx ) {
-            return $mRawRoot;
-        }
-        return $this->extractSerializedByIdx($idx, $mRawRoot);
-//        $mSerialized = $this->tryGetObjectRepresentation($idx);
-//        if ( null === $mSerialized ) {
-//            return $mRawRoot;
-//        }
-//        return $mSerialized;
-    }
-
-    /**
-     * @param string $ref
-     * @param null|mixed $mDefault
-     * @return mixed|null
-     */
-    public function extractSerializedByIdx($ref, $mDefault = null)
-    {
-        if ( !$ref ) {
-            return $mDefault;
-        }
-        $mSerialized = $this->tryGetObjectRepresentation($ref);
-        if ( null === $mSerialized ) {
-            return $mDefault;
-        }
-        return $mSerialized;
-    }
-
-    /**
-     * @param $Object
-     * @param array $partial
-     */
-    public function attachToFill($Object, array $partial)
-    {
-        $this->_ToFill->attach($Object, $partial);
-    }
-
-    /**
-     * @return \SplObjectStorage
-     */
-    public function getToFill()
-    {
-        return $this->_ToFill;
+        return $Res->getRawRoot();
     }
 
     /**
@@ -238,7 +154,7 @@ class PjSerializeProcess
         }
         $this->_meta = (object)[
             "classes" => [],
-            "versions" => (object)[],
+            "versions" => [],
         ];
         return $this;
     }
@@ -251,13 +167,13 @@ class PjSerializeProcess
      */
     protected function _setVersion($class, $version)
     {
-        if ( isset($this->_meta->versions->$class) ) {
-            if ( $this->_meta->versions->$class !== $version ) {
-                throw new EVersionMismatch($this->_meta->versions->$class, $version);
+        if ( isset($this->_meta->versions[$class]) ) {
+            if ( $this->_meta->versions[$class] !== $version ) {
+                throw new EVersionMismatch($this->_meta->versions[$class], $version);
             }
             return $this;
         }
-        $this->_meta->versions->$class = $version;
+        $this->_meta->versions[$class] = $version;
         return $this;
     }
 }

@@ -1,14 +1,14 @@
 <?php
 namespace MaciejSz\PjFreeze;
 
-use MaciejSz\PjFreeze\Process\AFreezeWorkUnit;
 use MaciejSz\PjFreeze\Process\PjSerializeProcess;
 use MaciejSz\PjFreeze\Process\PjSerializeStatus;
 use MaciejSz\PjFreeze\Process\PjSerializer;
+use MaciejSz\PjFreeze\Process\PjUnserializeProcess;
 use MaciejSz\PjFreeze\Process\PjUnserializer;
 use MaciejSz\PjFreeze\Process\SerializationResult;
 
-class PjFreeze extends AFreezeWorkUnit
+class PjFreeze
 {
     const REFERENCE_PREFIX = "##ref##";
 
@@ -18,14 +18,6 @@ class PjFreeze extends AFreezeWorkUnit
     public static function factory()
     {
         return new self();
-    }
-
-    /**
-     * @return PjFreeze
-     */
-    public static function greedy()
-    {
-        return new self(true);
     }
 
     /**
@@ -75,7 +67,7 @@ class PjFreeze extends AFreezeWorkUnit
      */
     public function serialize($mValue)
     {
-        $Process = new PjSerializeProcess($this->_is_greedy);
+        $Process = new PjSerializeProcess();
         $Status = new PjSerializeStatus($Process);
         $Serializer = new PjSerializer();
         return $Serializer->serialize($mValue, $Status);
@@ -88,7 +80,18 @@ class PjFreeze extends AFreezeWorkUnit
     public function unserialize(\stdClass $data)
     {
         $Unserializer = new PjUnserializer();
-        return $Unserializer->unserialize($data->root, $data);
+        $Process = new PjUnserializeProcess($data);
+        return $Unserializer->unserialize($data->root, $Process);
+    }
+
+    /**
+     * @param string $json_string
+     * @return mixed
+     */
+    public function unserializeJson($json_string)
+    {
+        $data = json_decode($json_string);
+        return $this->unserialize($data);
     }
 
     /**
@@ -98,7 +101,7 @@ class PjFreeze extends AFreezeWorkUnit
      */
     public function serializeObject($Object)
     {
-        $Process = new PjSerializeProcess($this->_is_greedy);
+        $Process = new PjSerializeProcess();
         $Status = new PjSerializeStatus($Process);
         $Serializer = new PjSerializer();
         return $Serializer->serializeObject($Object, $Status);
@@ -111,7 +114,7 @@ class PjFreeze extends AFreezeWorkUnit
      */
     public function serializeTraversable($mTraversable)
     {
-        $Process = new PjSerializeProcess($this->_is_greedy);
+        $Process = new PjSerializeProcess();
         $Status = new PjSerializeStatus($Process);
         $Serializer = new PjSerializer();
         return $Serializer->serializeTraversable($mTraversable, $Status);

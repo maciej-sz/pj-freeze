@@ -3,6 +3,7 @@
     "description": "PHP to JSON Serializer/Deserializer",
     "keywords": ["json", "serialize", "deserialize"],
     "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-0": {
             "MaciejSz\\PjFreeze\\": "src/",
@@ -15,7 +16,7 @@
         "phpunit/phpunit": "^5.4"
     },
     "require": {
-        "php": ">=5.5.3"
+        "php": ">=5.6"
     },
     "suggest": {}
 }

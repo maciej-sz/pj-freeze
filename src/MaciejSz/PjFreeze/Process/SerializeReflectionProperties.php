@@ -1,8 +1,6 @@
 <?php
 namespace MaciejSz\PjFreeze\Process;
 
-use MaciejSz\PjFreeze\PjFreeze;
-
 class SerializeReflectionProperties extends ASerializeWorkUnit
 {
     /**
@@ -11,10 +9,7 @@ class SerializeReflectionProperties extends ASerializeWorkUnit
      */
     public function serialize($Object)
     {
-        $items = $this->_Status->tryGetFillItems();
-        if ( !$items ) {
-            $items = [];
-        }
+        $items = [];
         $properties = self::getAllProperties($Object);
         foreach ( $properties as $Property ) {
             if ( $Property->isStatic() ) {
@@ -23,27 +18,11 @@ class SerializeReflectionProperties extends ASerializeWorkUnit
             $name = $Property->getName();
             $Property->setAccessible(true);
             $mValue = $Property->getValue($Object);
-            if ( $this->_Status->getOnlyScalars() && !is_scalar($mValue) ) {
-                $items[$name] = null;
-                continue;
-            }
-
-            $skip = false;
-            if ( array_key_exists($name, $items)) {
-                $skip = true;
-            }
-            if ( $skip && null === $items[$name] && null !== $mValue ) {
-                $skip = false;
-            }
-            if ( $skip ) {
-                continue;
-            }
-            
-            $SubStatus = $this->_Status->reset()->appendPath($name);
+            $idx = $this->_Status->getProcess()->tryGetObjectReference($Object);
+            $SubStatus = $this->_Status->appendPathProperty($name, $idx);
             $Res = $this->_Serializer->serialize($mValue, $SubStatus);
             $Process = $this->_Status->getProcess();
-            $mSerialized = $Process->extractSerialized($Res);
-            $items[$name] = $mSerialized;
+            $items[$name] = $Process->extractSerialized($Res);
         }
         return $items;
     }
