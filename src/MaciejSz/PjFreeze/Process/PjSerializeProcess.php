@@ -13,12 +13,7 @@ class PjSerializeProcess
     /**
      * @var \SplObjectStorage
      */
-    private $_Instances;
-
-    /**
-     * @var array
-     */
-    private $_references = [];
+    private $_Seen;
 
     /**
      * @var array
@@ -39,19 +34,19 @@ class PjSerializeProcess
      */
     public function __construct()
     {
-        $this->_Instances = new \SplObjectStorage();
+        $this->_Seen = new \SplObjectStorage();
     }
 
     /**
      * @param object $Object
      * @return bool
      */
-    public function hasObject($Object)
+    public function hasSeen($Object)
     {
         if ( !is_object($Object) ) {
             return false;
         }
-        return $this->_Instances->contains($Object);
+        return $this->_Seen->contains($Object);
     }
 
     /**
@@ -59,12 +54,11 @@ class PjSerializeProcess
      * @return int
      * @throws EInvalidVersion
      */
-    public function putObject($Object)
+    public function putSeen($Object)
     {
-        $idx = count($this->_references);
+        $idx = count($this->_Seen);
         $idx = "0x" . dechex($idx);
-        $this->_Instances->attach($Object, $idx);
-        $this->_references[$idx] = $Object;
+        $this->_Seen->attach($Object, $idx);
 
         $this->_ensureMeta();
 
@@ -88,18 +82,6 @@ class PjSerializeProcess
     public function putObjectRepresentation($idx, $serialized)
     {
         $this->_serialized_objects_dict[$idx] = $serialized;
-    }
-
-    /**
-     * @param string $idx
-     * @return mixed
-     */
-    public function tryGetObjectRepresentation($idx)
-    {
-        if ( isset($this->_serialized_objects_dict[$idx]) ) {
-            return $this->_serialized_objects_dict[$idx];
-        }
-        return null;
     }
 
     /**
@@ -147,10 +129,10 @@ class PjSerializeProcess
         if ( !is_object($Object) ) {
             return null;
         }
-        if ( !$this->hasObject($Object) ) {
+        if ( !$this->hasSeen($Object) ) {
             return null;
         }
-        return $this->_Instances->offsetGet($Object);
+        return $this->_Seen->offsetGet($Object);
     }
 
     /**

@@ -40,12 +40,12 @@ class PjSerializer
     public function serializeObject($Object, PjSerializeStatus $Status)
     {
         $Process = $Status->getProcess();
-        if ( $Process->hasObject($Object) ) {
+        if ( $Process->hasSeen($Object) ) {
             $idx = $Process->tryGetObjectReference($Object);
             $key = PjFreeze::buildKey($idx);
             return $Process->makeResult($key, $key);
         }
-        $idx = $Process->putObject($Object);
+        $idx = $Process->putSeen($Object);
         $item = (object)$this->_serializeReflectionProperties($Object, $Status);
         $Process->putObjectRepresentation($idx, $item);
         return $Process->makeResult($Object, $item);
@@ -61,13 +61,13 @@ class PjSerializer
         $Process = $Status->getProcess();
         $idx = null;
         if ( is_object($mTraversable) ) {
-            if ( $Process->hasObject($mTraversable) ) {
+            if ( $Process->hasSeen($mTraversable) ) {
                 $idx = $Process->tryGetObjectReference($mTraversable);
                 $key = PjFreeze::buildKey($idx);
                 return $Process->makeResult($key, $key);
             }
             else {
-                $idx = $Process->putObject($mTraversable);
+                $idx = $Process->putSeen($mTraversable);
             }
         }
 
