@@ -3,6 +3,7 @@
     "description": "PHP to JSON Serializer/Deserializer",
     "keywords": ["json", "serialize", "deserialize"],
     "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-0": {
             "MaciejSz\\PjFreeze\\": "src/",
