@@ -59,6 +59,13 @@ $unserialized = $Freeze->unserialize( $serialized_str );
 assert($unserialized === $unserialized->data);
 ```
 
+## Installation
+
+Via composer:
+```
+composer require maciej-sz/pj-freeze
+```
+
 [ico-version]:https://img.shields.io/packagist/v/maciej-sz/pj-freeze.svg?style=plastic
 [ico-travis]:https://img.shields.io/travis/maciej-sz/pj-freeze/master.svg?style=plastic
 [ico-no-deps]:https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=plastic
