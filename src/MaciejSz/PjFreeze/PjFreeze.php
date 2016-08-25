@@ -80,7 +80,7 @@ class PjFreeze
     public function unserialize(\stdClass $data)
     {
         $Unserializer = new PjUnserializer();
-        $Process = new PjUnserializeProcess($data);
+        $Process = PjUnserializeProcess::factory($data);
         return $Unserializer->unserialize($data->root, $Process);
     }
 

@@ -9,6 +9,7 @@ class AllTests extends \PHPUnit_Framework_TestSuite
 
         $Suite->addTestSuite(BasicSerializationTest::class);
         $Suite->addTestSuite(BasicUnserializationTest::class);
+        $Suite->addTestSuite(EncodingTest::class);
 
         return $Suite;
     }

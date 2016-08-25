@@ -16,10 +16,25 @@ class PjUnserializeProcess
     /**
      * @param \stdClass $serialized
      */
-    public function __construct(\stdClass $serialized)
+    private function __construct(\stdClass $serialized)
     {
         $this->_serialized = $serialized;
         $this->_object_references = [];
+    }
+
+    /**
+     * @param \stdClass $serialized
+     * @return PjUnserializeProcess
+     */
+    public static function factory(\stdClass $serialized)
+    {
+        $sanitized = new \stdClass();
+        $sanitized->root = $serialized->root;
+        $sanitized->objects = (array)$serialized->objects;
+        $sanitized->meta = new \stdClass();
+        $sanitized->meta->classes = (array)$serialized->meta->classes;
+        $sanitized->meta->versions = (array)$serialized->meta->versions;
+        return new self($sanitized);
     }
 
     /**
