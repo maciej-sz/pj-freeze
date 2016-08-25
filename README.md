@@ -24,9 +24,9 @@ $Freeze = new PjFreeze();
 $data = ["foo", "bar", "baz"];
 
 $SerializationResult = $Freeze->serialize($data);
-$serialized_str = $SerializationResult->jsonSerialize();
+$serializedObj = $SerializationResult->jsonSerialize();
 
-$unserialized = $Freeze->unserialize($serialized_str);
+$unserialized = $Freeze->unserialize($serializedObj);
 assert($data == $unserialized);
 ```
 #### Example: persisting round-trip
@@ -36,12 +36,13 @@ use MaciejSz\PjFreeze\PjFreeze;
 $Freeze = new PjFreeze();
 
 $data = ["foo", "bar", "baz"];
-$serialized_str = $Freeze->serialize($data)->jsonSerialize();
+$serializedObj = $Freeze->serialize($data)->jsonSerialize();
+$serialized_str = json_encode($serializedObj);
 
-file_put_contents("data.json", $serialized_str);
+file_put_contents("/tmp/data.json", $serialized_str);
 // ...
-$contents_str = file_get_contents("data.json");
-$unserialized = $Freeze->unserialize($contents_str);
+$contents_str = file_get_contents("/tmp/data.json");
+$unserialized = $Freeze->unserializeJson($contents_str);
 assert($data == $unserialized);
 ```
 
@@ -54,8 +55,8 @@ $Freeze = new PjFreeze();
 $std = new \stdClass();
 $std->data = $std; // circular reference
 
-$serialized_str = $Freeze->serialize($std)->jsonSerialize();
-$unserialized = $Freeze->unserialize( $serialized_str );
+$serializedObj = $Freeze->serialize($std)->jsonSerialize();
+$unserialized = $Freeze->unserialize($serializedObj);
 assert($unserialized === $unserialized->data);
 ```
 
