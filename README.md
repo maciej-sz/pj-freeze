@@ -30,6 +30,7 @@ $unserialized = $Freeze->unserialize($serializedObj);
 assert($data == $unserialized);
 ```
 #### Example: persisting round-trip
+An additional step is required for the serialization result to be persisted: PHP's standard `json_encode()` function has to be called. The `json_encode()` won't produce "*Recursion detected*" error this time.
 ```php
 use MaciejSz\PjFreeze\PjFreeze;
 
@@ -47,17 +48,34 @@ assert($data == $unserialized);
 ```
 
 #### Example: circular reference
+Using only `json_encode()`:
+```php
+// WARNING: this is an example of how NOT to encode circular references
+use MaciejSz\PjFreeze\PjFreeze;
+
+$data = new \stdClass();
+$data->recursion = $data; // circular reference
+
+$raw_encoded = json_encode($data);
+echo json_last_error_msg(); // "Recursion detected"
+```
+
+Using `PjFreeze`:
 ```php
 use MaciejSz\PjFreeze\PjFreeze;
 
+$data = new \stdClass();
+$data->recursion = $data; // circular reference
+
 $Freeze = new PjFreeze();
 
-$std = new \stdClass();
-$std->data = $std; // circular reference
+$serializedObj = $Freeze->serialize($data)->jsonSerialize();
+$jp_freeze_encoded = json_encode($serializedObj);
+echo json_last_error_msg(); // "No error"
 
-$serializedObj = $Freeze->serialize($std)->jsonSerialize();
-$unserialized = $Freeze->unserialize($serializedObj);
-assert($unserialized === $unserialized->data);
+$unserializedObj = json_decode($jp_freeze_encoded);
+$unserialized = $Freeze->unserialize($unserializedObj);
+assert($unserialized->recursion === $unserialized);
 ```
 
 ## Installation
